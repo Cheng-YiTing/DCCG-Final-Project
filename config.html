@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>工廠排程設定介面</title>
+  <style>
+    body { font-family: sans-serif; max-width: 900px; margin: 20px auto; }
+    fieldset { margin-bottom: 20px; }
+    label { display: inline-block; width: 130px; }
+    input[type="text"], input[type="number"] { width: 220px; }
+    .block { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>工廠排程設定</h1>
+
+  <p>步驟：填好資料 → 按「產生 config.json」→ 下載檔案放到專案資料夾 → 雙擊 run_viewer.bat 啟動視覺化</p>
+
+  <form id="cfgForm">
+    <fieldset>
+      <legend>機台設定（3 ~ 6 台）</legend>
+      <div class="block">
+        <label>機台數量：</label>
+        <input type="number" name="num_machines" id="num_machines" min="3" max="6" value="3">
+      </div>
+
+      <!-- 先畫 6 個輸入欄位，實際會依照數量取前面幾個 -->
+      <div class="block">
+        <label>第 1 台機台名稱：</label>
+        <input type="text" id="machine_name_1" placeholder="例如：前處理機">
+      </div>
+      <div class="block">
+        <label>第 2 台機台名稱：</label>
+        <input type="text" id="machine_name_2" placeholder="例如：加工機A">
+      </div>
+      <div class="block">
+        <label>第 3 台機台名稱：</label>
+        <input type="text" id="machine_name_3" placeholder="例如：加工機B">
+      </div>
+      <div class="block">
+        <label>第 4 台機台名稱：</label>
+        <input type="text" id="machine_name_4" placeholder="選填">
+      </div>
+      <div class="block">
+        <label>第 5 台機台名稱：</label>
+        <input type="text" id="machine_name_5" placeholder="選填">
+      </div>
+      <div class="block">
+        <label>第 6 台機台名稱：</label>
+        <input type="text" id="machine_name_6" placeholder="選填">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>工件流程設定（1 ~ 3 種）</legend>
+      <div class="block">
+        <label>工件種類數：</label>
+        <input type="number" name="num_products" id="num_products" min="1" max="3" value="1">
+      </div>
+
+      <!-- 工件 1 -->
+      <div class="block">
+        <strong>工件 1</strong><br>
+        <label>名稱：</label>
+        <input type="text" id="product_name_1" placeholder="例如：產品A"><br>
+        <label>流程路徑：</label>
+        <input type="text" id="route_1" style="width: 400px;"
+               placeholder="例如：前處理機->加工機A->檢查機->包裝機"><br>
+        <label>每站加工時間(秒)：</label>
+        <input type="number" step="0.1" id="duration_1" value="2">
+      </div>
+
+      <!-- 工件 2 -->
+      <div class="block">
+        <strong>工件 2</strong><br>
+        <label>名稱：</label>
+        <input type="text" id="product_name_2" placeholder="例如：產品B"><br>
+        <label>流程路徑：</label>
+        <input type="text" id="route_2" style="width: 400px;"
+               placeholder="例如：前處理機->加工機B->包裝機"><br>
+        <label>每站加工時間(秒)：</label>
+        <input type="number" step="0.1" id="duration_2" value="2">
+      </div>
+
+      <!-- 工件 3 -->
+      <div class="block">
+        <strong>工件 3</strong><br>
+        <label>名稱：</label>
+        <input type="text" id="product_name_3" placeholder="例如：產品C"><br>
+        <label>流程路徑：</label>
+        <input type="text" id="route_3" style="width: 400px;"
+               placeholder="例如：加工機A->檢查機->包裝機"><br>
+        <label>每站加工時間(秒)：</label>
+        <input type="number" step="0.1" id="duration_3" value="2">
+      </div>
+    </fieldset>
+
+    <button type="submit">產生 config.json</button>
+  </form>
+
+  <script>
+    document.getElementById('cfgForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const numMachines = parseInt(document.getElementById('num_machines').value, 10);
+      const numProducts = parseInt(document.getElementById('num_products').value, 10);
+
+      // 收集機台名稱
+      const machines = [];
+      for (let i = 1; i <= numMachines; i++) {
+        const name = document.getElementById('machine_name_' + i).value.trim();
+        if (!name) {
+          alert('第 ' + i + ' 台機台名稱未填寫');
+          return;
+        }
+        machines.push(name);
+      }
+
+      // 收集工件 & 流程
+      const products = [];
+      for (let j = 1; j <= numProducts; j++) {
+        const pname = document.getElementById('product_name_' + j).value.trim();
+        const routeStr = document.getElementById('route_' + j).value.trim();
+        const durationStr = document.getElementById('duration_' + j).value.trim();
+
+        if (!pname || !routeStr || !durationStr) {
+          alert('工件 ' + j + ' 的名稱 / 流程 / 時間有未填寫');
+          return;
+        }
+
+        const route = routeStr.split('->').map(s => s.trim()).filter(s => s.length > 0);
+        const duration = parseFloat(durationStr);
+
+        products.push({
+          name: pname,
+          route: route,
+          duration: duration
+        });
+      }
+
+      const config = {
+        machines: machines,
+        products: products
+      };
+
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'config.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      alert('config.json 已產生，請把它放到專案資料夾，再執行 python main_viewer.py');
+    });
+  </script>
+</body>
+</html>

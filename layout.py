@@ -1,4 +1,5 @@
 from data_structures import FactoryLayout, Machine
+from data_structures import ProductFlow
 
 def create_default_layout():
     layout = FactoryLayout()
@@ -14,3 +15,14 @@ def create_default_layout():
         layout.add_machine(m)
 
     return layout
+
+def create_default_flow():
+    flow = ProductFlow(
+        "產品A",
+        steps=[
+            {"machine": "加工機", "duration": 2},
+            {"machine": "檢查機", "duration": 2},
+            {"machine": "包裝機", "duration": 2},
+        ]
+    )
+    return flow

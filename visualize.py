@@ -1,4 +1,5 @@
 from compas.geometry import Box, Frame
+from compas.geometry import Sphere
 
 def machines_to_geometry(layout):
     geometry = {}
@@ -14,3 +15,8 @@ def machines_to_geometry(layout):
         geometry[name] = box
 
     return geometry
+
+def create_agent_geometry(agent):
+    # 工件用球表示
+    sphere = Sphere(radius=0.5, point=agent.position)
+    return sphere

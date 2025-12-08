@@ -34,3 +34,26 @@ class FactoryLayout:
 
     def add_product_flow(self, flow: ProductFlow):
         self.flows.append(flow)
+
+# 產品代理人，負責模擬產品在工廠中的流動
+class ProductAgent:
+    def __init__(self, name, flow: ProductFlow):
+        self.name = name
+        self.flow = flow
+        self.step_index = 0
+        self.position = [0, 0, 0]
+        self.finished = False
+        self.wait_time = 0
+        self.is_waiting = False
+
+    def current_step(self):
+        return self.flow.steps[self.step_index]
+
+    def move_to_next_step(self):
+        # 還沒走到最後一站，就往下一站
+        if self.step_index < len(self.flow.steps) - 1:
+            self.step_index += 1
+        # 已經在最後一站，而且還沒宣告完成，就印一次就好
+        elif not self.finished:
+            print(f"{self.name} 已完成所有工序")
+            self.finished = True
