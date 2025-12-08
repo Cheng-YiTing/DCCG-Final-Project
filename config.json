@@ -15,7 +15,8 @@
         "原料乾燥機",
         "檢察機"
       ],
-      "duration": 2
+      "duration": 2,
+      "quantity": 100
     },
     {
       "name": "樂高",
@@ -26,7 +27,8 @@
         "組裝機",
         "檢察機"
       ],
-      "duration": 10
+      "duration": 2,
+      "quantity": 50
     }
   ]
 }

@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <title>工廠排程設定介面</title>
   <style>
-    body { font-family: sans-serif; max-width: 900px; margin: 20px auto; }
+    body { font-family: sans-serif; max-width: 900px; margin: 20px auto; color: rgb(71, 42, 30);}
     fieldset { margin-bottom: 20px; }
     label { display: inline-block; width: 130px; }
     input[type="text"], input[type="number"] { width: 220px; }
     .block { margin-bottom: 10px; }
+    .machineSet { border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -17,7 +18,7 @@
   <p>步驟：填好資料 → 按「產生 config.json」→ 下載檔案放到專案資料夾 → 雙擊 run_viewer.bat 啟動視覺化</p>
 
   <form id="cfgForm">
-    <fieldset>
+    <fieldset class="machineSet">
       <legend>機台設定（3 ~ 6 台）</legend>
       <div class="block">
         <label>機台數量：</label>
@@ -51,7 +52,7 @@
       </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="machineSet">
       <legend>工件流程設定（1 ~ 3 種）</legend>
       <div class="block">
         <label>工件種類數：</label>
@@ -63,11 +64,16 @@
         <strong>工件 1</strong><br>
         <label>名稱：</label>
         <input type="text" id="product_name_1" placeholder="例如：產品A"><br>
+
         <label>流程路徑：</label>
         <input type="text" id="route_1" style="width: 400px;"
-               placeholder="例如：前處理機->加工機A->檢查機->包裝機"><br>
+                placeholder="例如：前處理機->加工機A->檢查機->包裝機"><br>
+
         <label>每站加工時間(秒)：</label>
-        <input type="number" step="0.1" id="duration_1" value="2">
+        <input type="number" step="0.1" id="duration_1" value="2"><br>
+
+        <label>需求量(Loads)：</label>
+        <input type="number" id="quantity_1" value="100">
       </div>
 
       <!-- 工件 2 -->
@@ -79,7 +85,9 @@
         <input type="text" id="route_2" style="width: 400px;"
                placeholder="例如：前處理機->加工機B->包裝機"><br>
         <label>每站加工時間(秒)：</label>
-        <input type="number" step="0.1" id="duration_2" value="2">
+        <input type="number" step="0.1" id="duration_2" value="2"><br>
+        <label>需求量(Loads)：</label>
+        <input type="number" id="quantity_2" value="100">
       </div>
 
       <!-- 工件 3 -->
@@ -91,7 +99,9 @@
         <input type="text" id="route_3" style="width: 400px;"
                placeholder="例如：加工機A->檢查機->包裝機"><br>
         <label>每站加工時間(秒)：</label>
-        <input type="number" step="0.1" id="duration_3" value="2">
+        <input type="number" step="0.1" id="duration_3" value="2"><br>
+        <label>需求量(Loads)：</label>
+        <input type="number" id="quantity_3" value="100">
       </div>
     </fieldset>
 
@@ -122,21 +132,25 @@
         const pname = document.getElementById('product_name_' + j).value.trim();
         const routeStr = document.getElementById('route_' + j).value.trim();
         const durationStr = document.getElementById('duration_' + j).value.trim();
+        const qtyStr = document.getElementById('quantity_' + j).value.trim();
 
-        if (!pname || !routeStr || !durationStr) {
-          alert('工件 ' + j + ' 的名稱 / 流程 / 時間有未填寫');
-          return;
+        if (!pname || !routeStr || !durationStr || !qtyStr) {
+            alert('工件 ' + j + ' 的名稱 / 流程 / 時間 / 需求量有未填寫');
+            return;
         }
 
         const route = routeStr.split('->').map(s => s.trim()).filter(s => s.length > 0);
         const duration = parseFloat(durationStr);
+        const quantity = parseFloat(qtyStr);
 
         products.push({
-          name: pname,
-          route: route,
-          duration: duration
+            name: pname,
+            route: route,
+            duration: duration,   // 之後雖然不用時間，但先保留沒關係
+            quantity: quantity    // ★ 新增欄位
         });
       }
+
 
       const config = {
         machines: machines,
