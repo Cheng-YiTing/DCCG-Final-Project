@@ -3,110 +3,483 @@
 <head>
   <meta charset="UTF-8">
   <title>工廠排程設定介面</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    body { font-family: sans-serif; max-width: 900px; margin: 20px auto; color: rgb(71, 42, 30);}
-    fieldset { margin-bottom: 20px; }
-    label { display: inline-block; width: 130px; }
-    input[type="text"], input[type="number"] { width: 220px; }
-    .block { margin-bottom: 10px; }
-    .machineSet { border-radius: 8px; }
+    :root {
+      --bg: #f3f4f6;
+      --bg-gradient-start: #eef2ff;
+      --bg-gradient-end: #e0f2fe;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --danger: #dc2626;
+      --radius-lg: 18px;
+      --radius-md: 10px;
+      --shadow-lg: 0 22px 50px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: radial-gradient(circle at top left, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text);
+    }
+
+    .wrapper {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 26px 26px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    @media (min-width: 768px) {
+      .card {
+        padding: 32px 30px 28px;
+      }
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subtitle {
+      margin: 0 0 16px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .tip {
+      font-size: 0.85rem;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: var(--primary-soft);
+      border: 1px dashed #bfdbfe;
+      color: #1d4ed8;
+      margin-bottom: 20px;
+    }
+
+    .tip strong {
+      font-weight: 600;
+    }
+
+    form {
+      margin-top: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1.05fr 1.1fr;
+        gap: 20px;
+      }
+    }
+
+    fieldset {
+      margin: 0;
+      padding: 16px 18px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      position: relative;
+    }
+
+    fieldset.machineSet {
+      background: #f9fafb;
+    }
+
+    legend {
+      padding: 0 10px;
+      font-size: 0.92rem;
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    .legend-tag {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-left: 4px;
+      font-weight: 400;
+    }
+
+    .block {
+      margin-bottom: 12px;
+    }
+
+    .block strong {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .inline-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .inline-label span {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
+      background: #ffffff;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder {
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
+      background: #ffffff;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .helper {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 2px;
+      margin-bottom: 5px;
+    }
+
+    .section-footer {
+      margin-top: 6px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+      margin: 18px 0 14px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .btn-primary {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.45);
+      filter: brightness(1.02);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+      filter: brightness(0.99);
+    }
+
+    .btn-primary-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .note strong {
+      color: #4b5563;
+    }
+
+    .alert-hint {
+      font-size: 0.78rem;
+      color: var(--danger);
+      opacity: 0.9;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 22px 18px 18px;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+      .tip {
+        font-size: 0.8rem;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <h1>工廠排程設定</h1>
-
-  <p>步驟：填好資料 → 按「產生 config.json」→ 下載檔案放到專案資料夾 → 雙擊 run_viewer.bat 啟動視覺化</p>
-
-  <form id="cfgForm">
-    <fieldset class="machineSet">
-      <legend>機台設定（3 ~ 6 台）</legend>
-      <div class="block">
-        <label>機台數量：</label>
-        <input type="number" name="num_machines" id="num_machines" min="3" max="6" value="3">
+  <div class="wrapper">
+    <main class="card">
+      <div class="header-row">
+        <h1>工廠排程設定</h1>
       </div>
 
-      <!-- 先畫 6 個輸入欄位，實際會依照數量取前面幾個 -->
-      <div class="block">
-        <label>第 1 台機台名稱：</label>
-        <input type="text" id="machine_name_1" placeholder="例如：前處理機">
-      </div>
-      <div class="block">
-        <label>第 2 台機台名稱：</label>
-        <input type="text" id="machine_name_2" placeholder="例如：加工機A">
-      </div>
-      <div class="block">
-        <label>第 3 台機台名稱：</label>
-        <input type="text" id="machine_name_3" placeholder="例如：加工機B">
-      </div>
-      <div class="block">
-        <label>第 4 台機台名稱：</label>
-        <input type="text" id="machine_name_4" placeholder="選填">
-      </div>
-      <div class="block">
-        <label>第 5 台機台名稱：</label>
-        <input type="text" id="machine_name_5" placeholder="選填">
-      </div>
-      <div class="block">
-        <label>第 6 台機台名稱：</label>
-        <input type="text" id="machine_name_6" placeholder="選填">
-      </div>
-    </fieldset>
+      <p class="subtitle">
+        先在下方輸入機台與工件流程資訊，再一鍵匯出 config.json，配合程式即可檢視模擬結果。
+      </p>
 
-    <fieldset class="machineSet">
-      <legend>工件流程設定（1 ~ 3 種）</legend>
-      <div class="block">
-        <label>工件種類數：</label>
-        <input type="number" name="num_products" id="num_products" min="1" max="3" value="1">
+      <div class="tip">
+        <strong>步驟說明：</strong>
+        填好資料 → 按「產生 config.json」→ 將檔案放入專案資料夾 → 執行 python main_viewer.py 啟動視覺化。
       </div>
 
-      <!-- 工件 1 -->
-      <div class="block">
-        <strong>工件 1</strong><br>
-        <label>名稱：</label>
-        <input type="text" id="product_name_1" placeholder="例如：產品A"><br>
+      <form id="cfgForm">
+        <div class="grid-2">
+          <!-- 機台設定 -->
+          <fieldset class="machineSet">
+            <legend>
+              機台設定
+              <span class="legend-tag">3 ~ 6 台</span>
+            </legend>
 
-        <label>流程路徑：</label>
-        <input type="text" id="route_1" style="width: 400px;"
-                placeholder="例如：前處理機->加工機A->檢查機->包裝機"><br>
+            <div class="block">
+              <label class="inline-label">
+                機台數量
+                <span>建議依實際產線規模調整</span>
+              </label>
+              <input type="number" name="num_machines" id="num_machines" min="3" max="6" value="3">
+            </div>
 
-        <label>每站加工時間(秒)：</label>
-        <input type="number" step="0.1" id="duration_1" value="2"><br>
+            <div class="divider"></div>
 
-        <label>需求量(Loads)：</label>
-        <input type="number" id="quantity_1" value="100">
-      </div>
+            <!-- 先畫 6 個輸入欄位，實際會依照數量取前面幾個 -->
+            <div class="block">
+              <strong>第 1 台機台 <span class="pill">必填</span></strong>
+              <label>機台名稱</label>
+              <input type="text" id="machine_name_1" placeholder="例如：前處理機">
+            </div>
 
-      <!-- 工件 2 -->
-      <div class="block">
-        <strong>工件 2</strong><br>
-        <label>名稱：</label>
-        <input type="text" id="product_name_2" placeholder="例如：產品B"><br>
-        <label>流程路徑：</label>
-        <input type="text" id="route_2" style="width: 400px;"
-               placeholder="例如：前處理機->加工機B->包裝機"><br>
-        <label>每站加工時間(秒)：</label>
-        <input type="number" step="0.1" id="duration_2" value="2"><br>
-        <label>需求量(Loads)：</label>
-        <input type="number" id="quantity_2" value="100">
-      </div>
+            <div class="block">
+              <strong>第 2 台機台 <span class="pill">必填</span></strong>
+              <label>機台名稱</label>
+              <input type="text" id="machine_name_2" placeholder="例如：加工機A">
+            </div>
 
-      <!-- 工件 3 -->
-      <div class="block">
-        <strong>工件 3</strong><br>
-        <label>名稱：</label>
-        <input type="text" id="product_name_3" placeholder="例如：產品C"><br>
-        <label>流程路徑：</label>
-        <input type="text" id="route_3" style="width: 400px;"
-               placeholder="例如：加工機A->檢查機->包裝機"><br>
-        <label>每站加工時間(秒)：</label>
-        <input type="number" step="0.1" id="duration_3" value="2"><br>
-        <label>需求量(Loads)：</label>
-        <input type="number" id="quantity_3" value="100">
-      </div>
-    </fieldset>
+            <div class="block">
+              <strong>第 3 台機台 <span class="pill">必填</span></strong>
+              <label>機台名稱</label>
+              <input type="text" id="machine_name_3" placeholder="例如：加工機B">
+            </div>
 
-    <button type="submit">產生 config.json</button>
-  </form>
+            <div class="block">
+              <strong>第 4 台機台</strong>
+              <label>機台名稱</label>
+              <input type="text" id="machine_name_4" placeholder="選填：例如 檢查機">
+            </div>
+
+            <div class="block">
+              <strong>第 5 台機台</strong>
+              <label>機台名稱</label>
+              <input type="text" id="machine_name_5" placeholder="選填">
+            </div>
+
+            <div class="block">
+              <strong>第 6 台機台</strong>
+              <label>機台名稱</label>
+              <input type="text" id="machine_name_6" placeholder="選填">
+            </div>
+
+            <div class="section-footer">
+              小提示：實際使用時會依「機台數量」只取前面幾台機台名稱。
+            </div>
+          </fieldset>
+
+          <!-- 工件流程設定 -->
+          <fieldset class="machineSet">
+            <legend>
+              工件流程設定
+              <span class="legend-tag">1 ~ 3 種工件</span>
+            </legend>
+
+            <div class="block">
+              <label class="inline-label">
+                工件種類數
+                <span>可混合不同流程</span>
+              </label>
+              <input type="number" name="num_products" id="num_products" min="1" max="3" value="1">
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 工件 1 -->
+            <div class="block">
+              <strong>工件 1 <span class="pill">必填</span></strong>
+
+              <label>名稱</label>
+              <input type="text" id="product_name_1" placeholder="例如：產品A">
+
+              <label>流程路徑</label>
+              <input
+                type="text"
+                id="route_1"
+                placeholder="例如：前處理機->加工機A->檢查機->包裝機"
+              >
+              <div class="helper">請使用「->」分隔，名稱需與上方機台名稱一致。</div>
+
+              <label>每站加工時間（分）</label>
+              <input type="number" step="0.1" id="duration_1" value="2">
+              <div class="helper">動畫模擬將以秒為單位顯示</div>
+
+              <label>需求量（Loads）</label>
+              <input type="number" id="quantity_1" value="100">
+            </div>
+
+            <!-- 工件 2 -->
+            <div class="block">
+              <strong>工件 2</strong>
+
+              <label>名稱</label>
+              <input type="text" id="product_name_2" placeholder="例如：產品B">
+
+              <label>流程路徑</label>
+              <input
+                type="text"
+                id="route_2"
+                placeholder="例如：前處理機->加工機B->包裝機"
+              >
+              <div class="helper">如不使用本工件，可留空並將「工件種類數」設為 1。</div>
+
+              <label>每站加工時間（秒）</label>
+              <input type="number" step="0.1" id="duration_2" value="2">
+
+              <label>需求量（Loads）</label>
+              <input type="number" id="quantity_2" value="100">
+            </div>
+
+            <!-- 工件 3 -->
+            <div class="block">
+              <strong>工件 3</strong>
+
+              <label>名稱</label>
+              <input type="text" id="product_name_3" placeholder="例如：產品C">
+
+              <label>流程路徑</label>
+              <input
+                type="text"
+                id="route_3"
+                placeholder="例如：加工機A->檢查機->包裝機"
+              >
+
+              <label>每站加工時間（秒）</label>
+              <input type="number" step="0.1" id="duration_3" value="2">
+
+              <label>需求量（Loads）</label>
+              <input type="number" id="quantity_3" value="100">
+            </div>
+
+            <div class="section-footer">
+              若「工件種類數」小於 3，系統只會讀取前面幾種工件設定。
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary">
+            <span class="btn-primary-icon">⚙️</span>
+            <span>產生 config.json</span>
+          </button>
+          <div class="note">
+            <strong>提醒：</strong> 產生後請將 config.json 放入專案資料夾再執行程式。<br>
+            <span class="alert-hint">若欄位未填完整，系統會以視窗提示需要補齊的內容。</span>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
 
   <script>
     document.getElementById('cfgForm').addEventListener('submit', function (e) {
@@ -135,8 +508,8 @@
         const qtyStr = document.getElementById('quantity_' + j).value.trim();
 
         if (!pname || !routeStr || !durationStr || !qtyStr) {
-            alert('工件 ' + j + ' 的名稱 / 流程 / 時間 / 需求量有未填寫');
-            return;
+          alert('工件 ' + j + ' 的名稱 / 流程 / 時間 / 需求量有未填寫');
+          return;
         }
 
         const route = routeStr.split('->').map(s => s.trim()).filter(s => s.length > 0);
@@ -144,13 +517,12 @@
         const quantity = parseFloat(qtyStr);
 
         products.push({
-            name: pname,
-            route: route,
-            duration: duration,   // 之後雖然不用時間，但先保留沒關係
-            quantity: quantity    // ★ 新增欄位
+          name: pname,
+          route: route,
+          duration: duration,
+          quantity: quantity
         });
       }
-
 
       const config = {
         machines: machines,
