@@ -1,14 +1,17 @@
 # 機台資料結構
 class Machine:
-    def __init__(self, name, position, size):
-        """
-        name: 機台名稱 (字串)
-        position: (x, y, z)
-        size: (width, depth, height)
-        """
+    def __init__(self, name, position, size, mtype=None, speed=1.0, capacity=1):
         self.name = name
         self.position = position
         self.size = size
+
+        # 新增：類型 / 速度 / 容量 / 忙碌到何時
+        self.type = mtype if mtype is not None else name  # 沒給就用 name 當 type（相容舊資料）
+        self.speed = float(speed)
+        self.capacity = int(capacity)
+
+        # 簡化：先做 capacity=1，所以 busy_until 一個數字就夠
+        self.busy_until = 0.0
 
 # 產品流程資料結構
 class ProductFlow:
