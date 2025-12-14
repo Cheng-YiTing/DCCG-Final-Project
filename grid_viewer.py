@@ -257,7 +257,7 @@ def main():
     for name, box in machine_boxes.items():
         load = machine_loads.get(name, 0.0)
         color = cmap(load, minval=min_load, maxval=max_load)
-
+        color.a = 0.4
         viewer.scene.add(
             box,
             name=f"{name} (load={load:.1f})",
@@ -293,7 +293,7 @@ def main():
 
         col = Color.from_rgb255(255, 230, 50)  # 亮黃，清楚易見
 
-        agent = PathAgent(pname, agent_points, viewer, col, speed=0.2)
+        agent = PathAgent(pname, agent_points, viewer, col, speed=0.8)
         agents.append(agent)
 
     print(f"建立了 {len(agents)} 個工件 Agent")
