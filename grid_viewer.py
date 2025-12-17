@@ -1,263 +1,331 @@
 import json
 
 from compas.colors import Color, ColorMap
-from compas.geometry import Box, Frame, Polyline, Sphere
+from compas.geometry import Box, Frame, Sphere
 from compas_viewer import Viewer
 
 from data_structures import FactoryLayout, Machine
 from visualize import machines_to_geometry
 
 
-# ------------------------------------------------------------
+# ============================================================
+# 視覺設定
+# ============================================================
+TILE_SIZE = (2.4, 2.4, 0.08)      # 薄地板 (x, y, z)
+MACHINE_SIZE = (1.6, 1.6, 1.6)    # 機台 (x, y, z)
+GAP_X = 0.25                      # 欄間距（左右）
+GAP_Y = 0.25                      # 列間距（上下）
+
+# 工件球
+WORKPIECE_RADIUS = 0.35
+WORKPIECE_COLOR = Color.from_rgb255(255, 230, 50)
+
+# Heatmap（柔和灰藍 → 暖紅）
+HEAT_LOW = Color.from_rgb255(176, 196, 222)   # light steel blue
+HEAT_HIGH = Color.from_rgb255(240, 128, 128)  # light coral
+MACHINE_ALPHA = 0.40
+
+
+# ============================================================
 # 讀設定檔
-# ------------------------------------------------------------
+# ============================================================
+
 def load_config(path="config.json"):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-# ------------------------------------------------------------
-# 2×3 slot 固定座標（中心點）
-# 編號方式：
-#   1  2  3
-#   4  5  6
-# ------------------------------------------------------------
-SLOT_POSITIONS = {
-    "1": (-3.0,  1.5, 0.0),
-    "2": ( 0.0,  1.5, 0.0),
-    "3": ( 3.0,  1.5, 0.0),
-    "4": (-3.0, -1.5, 0.0),
-    "5": ( 0.0, -1.5, 0.0),
-    "6": ( 3.0, -1.5, 0.0),
-}
+# ============================================================
+# Layout helper
+# ============================================================
 
-# 扁扁地板格子（tile）大小 & 機台 box 大小
-TILE_SIZE = (2.4, 2.4, 0.08)      # 很薄的地板
-MACHINE_SIZE = (1.6, 1.6, 1.6)    # 你設定的正方體機台
+def get_types_order(config):
+    """依 machines 出現順序蒐集 type，保持欄位順序穩定。"""
+    types = []
+    for m in config.get("machines", []):
+        if isinstance(m, str):
+            t = m
+        else:
+            t = m.get("type") or m.get("name")
+        if t not in types:
+            types.append(t)
+    return types
 
 
-# ------------------------------------------------------------
-# 根據 config["machines"] 建立 2×3 佈局的 FactoryLayout
-# 機台中心放在 tile 上方（站在地板上）
-# ------------------------------------------------------------
-def build_layout_2x3(config):
+def group_machines_by_type(config, types_order):
+    """把 machines 分組成 {type: [machine_dict, ...]}。
+
+    兼容兩種格式：
+    - 舊格式：machines = ["加工機1", "加工機2", ...]（會把 name=type）
+    - 新格式：machines = [{"name":..., "type":..., "speed":...}, ...]
+
+    建議你現在都用「新格式」。
+    """
+    out = {t: [] for t in types_order}
+
+    for m in config.get("machines", []):
+        if isinstance(m, str):
+            name = m
+            t = m
+            speed = 1.0
+            out.setdefault(t, []).append({"name": name, "type": t, "speed": speed})
+        else:
+            name = m["name"]
+            t = m.get("type") or name
+            speed = float(m.get("speed", 1.0))
+            out.setdefault(t, []).append({"name": name, "type": t, "speed": speed})
+
+    # 保持每一欄由上到下順序穩定
+    for t in out:
+        out[t].sort(key=lambda mm: mm["name"])
+
+    return out
+
+
+def make_grid_positions(types_order, rows):
+    """回傳 {(type, row_index): (x,y,0)}
+
+    - 欄：type（由左到右）
+    - 列：同一 type 的第幾台（由上到下）
+
+    row_index = 0 代表最上面。
+    """
+    col_step = TILE_SIZE[0] + GAP_X
+    row_step = TILE_SIZE[1] + GAP_Y
+
+    # 讓整個網格置中
+    ncols = len(types_order)
+    x0 = -0.5 * (ncols - 1) * col_step
+    y0 = 0.5 * (rows - 1) * row_step
+
+    pos = {}
+    for ci, t in enumerate(types_order):
+        x = x0 + ci * col_step
+        for r in range(rows):
+            y = y0 - r * row_step
+            pos[(t, r)] = (x, y, 0.0)
+    return pos
+
+
+def build_layout_by_type_grid(config):
+    """把機台擺成「欄=機台種類，列=同種機台的第幾台(上下)」。
+
+    回傳：layout, types_order, rows, grid_pos
+    """
     layout = FactoryLayout()
 
-    machines = config.get("machines", [])
+    types_order = get_types_order(config)
+    machines_by_type_dict = group_machines_by_type(config, types_order)
 
-    tile_center_z = 0.0
+    rows = max((len(lst) for lst in machines_by_type_dict.values()), default=1)
+    grid_pos = make_grid_positions(types_order, rows)
+
+    # z：機台站在 tile 上
     tile_thickness = TILE_SIZE[2]
     machine_height = MACHINE_SIZE[2]
+    machine_center_z = tile_thickness / 2.0 + machine_height / 2.0
 
-    # 機台中心 z = tile 上表面 + 機台高度一半
-    machine_center_z = tile_center_z + tile_thickness / 2.0 + machine_height / 2.0
+    for t in types_order:
+        machines = machines_by_type_dict.get(t, [])
+        for r, m in enumerate(machines):
+            x, y, _ = grid_pos[(t, r)]
+            position = (x, y, machine_center_z)
 
-    # 最多 6 台，多的先忽略
-    for i, name in enumerate(machines[:6]):
-        slot_index = str(i + 1)
-        tile_pos = SLOT_POSITIONS[slot_index]
+            name = m["name"]
+            speed = float(m.get("speed", 1.0))
+            mtype = m.get("type", t)
 
-        # 機台位置：x、y 跟 tile 一樣，z 提高
-        position = (tile_pos[0], tile_pos[1], machine_center_z)
+            machine = Machine(name, position, MACHINE_SIZE, mtype=mtype, speed=speed)
+            layout.add_machine(machine)
 
-        machine = Machine(name, position, MACHINE_SIZE)
-        layout.add_machine(machine)
-
-    return layout
-
-
-# ------------------------------------------------------------
-# loading 計算：根據 route + quantity
-# ------------------------------------------------------------
-def compute_machine_loads(config):
-    machines = config.get("machines", [])
-    products = config.get("products", [])
-
-    loads = {m: 0.0 for m in machines}
-
-    for p in products:
-        qty = float(p.get("quantity", 0))
-        route = p.get("route", [])
-
-        for m in route:
-            if m not in loads:
-                continue
-            loads[m] += qty
-
-    return loads
+    return layout, types_order, rows, grid_pos
 
 
-# ------------------------------------------------------------
-# 將每個 product 的 route 轉成：
-#   - points：沿流程的 3D 座標（用來給工件方塊跑）
-#   - polyline：用來畫灰色流程線
-# 灰線「穿過機台中心」（z = 機台中心高度）
-# ------------------------------------------------------------
-def build_route_polylines(config, layout):
-    products = config.get("products", [])
+# ============================================================
+# Heatmap loading（目前先回傳 0，之後可改成：指派次數 / 等候時間 / utilization）
+# ============================================================
 
-    machine_positions = {
-        name: m.position for name, m in layout.machines.items()
-    }
-
-    polylines = []
-
-    for idx, p in enumerate(products):
-        name = p.get("name", f"product_{idx}")
-        route = p.get("route", [])
-
-        points = []
-
-        for m_name in route:
-            if m_name not in machine_positions:
-                # route 裡如果有打錯機台名稱就略過
-                continue
-
-            x, y, z_center = machine_positions[m_name]
-
-            # 讓流程線穿過機台中間
-            z = z_center
-            points.append([x, y, z])
-
-        if len(points) >= 2:
-            poly = Polyline(points)
-            polylines.append((name, points, poly))
-
-    return polylines
+def compute_machine_loads_zero(layout):
+    return {name: 0.0 for name in layout.machines.keys()}
 
 
-# ------------------------------------------------------------
-# 沿折線移動的工件 Agent（COMPAS 2.15：每幀重新建立 Box）
-# ------------------------------------------------------------
-class PathAgent:
-    def __init__(self, name, points, viewer, color, speed=0.2):
-        self.name = name
-        self.points = points
+# ============================================================
+# 回合制工件（不管路徑重疊，直接直線移動到目標機台中心）
+# ============================================================
+
+class WorkpieceAgent:
+    def __init__(self, wid, route_steps, layout, viewer, color, start_pos, move_speed=4.0):
+        self.wid = wid
+        self.route_steps = route_steps
+        self.layout = layout
         self.viewer = viewer
         self.color = color
-        self.speed = speed
+        self.move_speed = move_speed
 
-        self.segment_index = 0
-        self.t = 0.0
-        self.finished = False
+        self.step_index = 0
+        self.state = "need_assign"   # need_assign / moving / processing / finished
+        self.current_machine = None
+        self.process_remaining = 0.0
 
-        # 在路徑起點建立第一個球（稍微抬高一點）
-        x, y, z = self.points[0]
-        z += 0.1
-        origin_frame = Frame((x, y, z), (1, 0, 0), (0, 1, 0))
+        self.pos = list(start_pos)  # [x,y,z]
+        self.target_pos = list(start_pos)
 
-        sphere = Sphere(radius=0.35, frame=origin_frame)
+        self.current_obj = None
+        self._draw()
 
+    def current_step(self):
+        if self.step_index >= len(self.route_steps):
+            return None
+        return self.route_steps[self.step_index]
+
+    def _draw(self):
+        # COMPAS 2.15：穩定作法：移除舊物件、重建新球
+        if self.current_obj is not None:
+            self.viewer.scene.remove(self.current_obj)
+
+        f = Frame((self.pos[0], self.pos[1], self.pos[2]), (1, 0, 0), (0, 1, 0))
+        sphere = Sphere(radius=WORKPIECE_RADIUS, frame=f)
         self.current_obj = self.viewer.scene.add(
             sphere,
-            name=f"agent_{self.name}",
+            name=f"wp_{self.wid}",
             surfacecolor=self.color,
+            show_lines=True,
         )
 
-    def step(self, dt):
-        if self.finished:
+    def try_assign(self, now, machines_by_type):
+        step = self.current_step()
+        if step is None:
+            self.state = "finished"
+            print(f"{self.wid} 完成所有工序")
             return
 
-        if self.segment_index >= len(self.points) - 1:
-            self.finished = True
-            return
+        target_type = step["type"]
+        candidates = machines_by_type.get(target_type, [])
 
-        p0 = self.points[self.segment_index]
-        p1 = self.points[self.segment_index + 1]
+        chosen = None
+        for m in candidates:
+            if m.busy_until <= now:
+                chosen = m
+                break
 
-        self.t += self.speed * dt
+        if chosen is None:
+            return  # 本回合沒機台空
 
-        if self.t >= 1.0:
-            self.t = 0.0
-            self.segment_index += 1
+        self.current_machine = chosen
 
-            if self.segment_index >= len(self.points) - 1:
-                self.finished = True
-                return
+        base = float(step.get("duration", 1.0))
+        actual = base / max(float(getattr(chosen, "speed", 1.0)), 1e-6)
 
-            p0 = self.points[self.segment_index]
-            p1 = self.points[self.segment_index + 1]
+        chosen.busy_until = now + actual
+        self.process_remaining = actual
 
-        x = (1 - self.t) * p0[0] + self.t * p1[0]
-        y = (1 - self.t) * p0[1] + self.t * p1[1]
-        z = (1 - self.t) * p0[2] + self.t * p1[2] + 0.1
+        x, y, z = chosen.position
+        self.target_pos = [x, y, z + 0.1]
 
-        # 移除舊物件
-        self.viewer.scene.remove(self.current_obj)
-
-        # 建立新球
-        new_frame = Frame((x, y, z), (1, 0, 0), (0, 1, 0))
-        new_sphere = Sphere(radius=0.35, frame=new_frame)
-
-        self.current_obj = self.viewer.scene.add(
-            new_sphere,
-            name=f"agent_{self.name}",
-            surfacecolor=self.color,
+        print(
+            f"{self.wid} 指派到：{chosen.name} "
+            f"(type={chosen.type}, speed={chosen.speed})｜加工時間：{actual:.2f}s"
         )
 
-# ------------------------------------------------------------
+        self.state = "moving"
+
+    def step(self, dt, now, machines_by_type):
+        if self.state == "finished":
+            return
+
+        if self.state == "need_assign":
+            return
+
+        if self.state == "moving":
+            # 直線靠近 target（簡單但清楚）
+            alpha = min(1.0, self.move_speed * dt)
+            for i in range(3):
+                self.pos[i] += (self.target_pos[i] - self.pos[i]) * alpha
+
+            self._draw()
+
+            if all(abs(self.pos[i] - self.target_pos[i]) < 0.03 for i in range(3)):
+                self.state = "processing"
+            return
+
+        if self.state == "processing":
+            self.process_remaining -= dt
+            if self.process_remaining <= 0:
+                self.step_index += 1
+                if self.step_index >= len(self.route_steps):
+                    self.state = "finished"
+                    print(f"{self.wid} 完成所有工序")
+                else:
+                    self.state = "need_assign"
+            return
+
+
+# ============================================================
 # 主程式
-# ------------------------------------------------------------
+# ============================================================
+
 def main():
-    # 1. 讀設定檔
     config = load_config()
 
-    # 2. 建立 2×3 佈局
-    layout = build_layout_2x3(config)
+    # 1) 依 type-grid 建立 layout
+    layout, types_order, rows, grid_pos = build_layout_by_type_grid(config)
 
-    # 3. loading（heatmap 用）
-    machine_loads = compute_machine_loads(config)
+    # 2) 回合制派工用：machines_by_type（由上到下順序：name 排序）
+    machines_by_type = {}
+    for m in layout.machines.values():
+        machines_by_type.setdefault(m.type, []).append(m)
+    for t in machines_by_type:
+        machines_by_type[t].sort(key=lambda mm: mm.name)
 
-    # 4. Viewer
+    # 3) heatmap loads（先全部 0）
+    machine_loads = compute_machine_loads_zero(layout)
+
+    # 4) viewer
     viewer = Viewer(rendermode="shaded")
 
     # --------------------------------------------------------
-    # 4-1. 畫出 6 塊扁扁灰格子（當地板）
+    # A. 畫「合併地板」：每一欄(type)一整塊，往下覆蓋 rows 格
     # --------------------------------------------------------
-    for slot_index, pos in SLOT_POSITIONS.items():
-        frame = Frame(pos, [1, 0, 0], [0, 1, 0])
+    row_step = TILE_SIZE[1] + GAP_Y
+    merged_y = rows * TILE_SIZE[1] + (rows - 1) * GAP_Y
+
+    for t in types_order:
+        # 欄中心 x：取 (t,0) 的位置
+        x, _, _ = grid_pos[(t, 0)]
+        center = (x, 0.0, 0.0)
+
         tile = Box(
-            frame=frame,
+            frame=Frame(center, (1, 0, 0), (0, 1, 0)),
             xsize=TILE_SIZE[0],
-            ysize=TILE_SIZE[1],
+            ysize=merged_y,
             zsize=TILE_SIZE[2],
         )
 
         viewer.scene.add(
             tile,
-            name=f"Slot {slot_index}",
+            name=f"Tile_{t}",
             surfacecolor=Color.from_rgb255(235, 235, 235),
             show_lines=True,
             show_points=False,
         )
 
     # --------------------------------------------------------
-    # 4-2. 準備 loading 熱度圖顏色（方案 B：柔和灰藍 → 暖紅）
+    # B. 畫機台 box（依 load 著色，可透）
     # --------------------------------------------------------
     loads_values = list(machine_loads.values())
-    if loads_values:
-        min_load = min(loads_values)
-        max_load = max(loads_values)
-    else:
-        min_load = max_load = 0.0
-
+    min_load = min(loads_values) if loads_values else 0.0
+    max_load = max(loads_values) if loads_values else 1.0
     if max_load == min_load:
         max_load = min_load + 1.0
 
-    cmap = ColorMap.from_two_colors(
-        Color.from_rgb255(176, 196, 222),   # light steel blue
-        Color.from_rgb255(240, 128, 128),   # light coral
-    )
+    cmap = ColorMap.from_two_colors(HEAT_LOW, HEAT_HIGH)
 
-    # --------------------------------------------------------
-    # 4-3. 畫出機台 box（顏色依 loading）
-    # --------------------------------------------------------
     machine_boxes = machines_to_geometry(layout)
-
     for name, box in machine_boxes.items():
         load = machine_loads.get(name, 0.0)
         color = cmap(load, minval=min_load, maxval=max_load)
-        color.a = 0.4
+        color.a = MACHINE_ALPHA
+
         viewer.scene.add(
             box,
             name=f"{name} (load={load:.1f})",
@@ -267,65 +335,75 @@ def main():
         )
 
     # --------------------------------------------------------
-    # 4-4. 畫出每種工件的流程折線（灰色，穿過機台中間）
+    # C. 產生工件（quantity 會產生多顆）
+    #    起點：放在最左側一個 staging 區（不在地板上）
     # --------------------------------------------------------
-    routes = build_route_polylines(config, layout)
+    ncols = max(len(types_order), 1)
+    col_step = TILE_SIZE[0] + GAP_X
+    staging_x = -0.5 * (ncols - 1) * col_step - (TILE_SIZE[0] * 0.9)
+    staging_z = (TILE_SIZE[2] / 2.0) + (MACHINE_SIZE[2] / 2.0) + 0.1
 
-    for pname, points, poly in routes:
-        viewer.scene.add(
-            poly,
-            name=f"Route: {pname}",
-            linecolor=Color.from_rgb255(150, 150, 150),
-            linewidth=3,
-        )
-
-    # --------------------------------------------------------
-    # 4-5. 建立沿路徑移動的工件方塊 Agent
-    # --------------------------------------------------------
     agents = []
+    products = config.get("products", [])
 
-    for idx, (pname, points, poly) in enumerate(routes):
-        if not points:
-            continue
+    for p in products:
+        pname = p.get("name", "P")
+        qty = int(p.get("quantity", 1))
+        route_steps = p.get("route", [])  # [{"type":..., "duration":...}, ...]
 
-        # 直接用機台中心的路徑點（PathAgent 裡面自己加 0.1 的高度）
-        agent_points = points
+        for k in range(qty):
+            wid = f"{pname}-{k+1}"
+            # y 方向稍微錯開，避免全部疊在一起（不做碰撞，只是視覺好看）
+            start_pos = (staging_x, 0.4 * k, staging_z)
+            agent = WorkpieceAgent(
+                wid,
+                route_steps,
+                layout,
+                viewer,
+                WORKPIECE_COLOR,
+                start_pos=start_pos,
+                move_speed=4.0,
+            )
+            agents.append(agent)
 
-        col = Color.from_rgb255(255, 230, 50)  # 亮黃，清楚易見
-
-        agent = PathAgent(pname, agent_points, viewer, col, speed=0.8)
-        agents.append(agent)
-
-    print(f"建立了 {len(agents)} 個工件 Agent")
+    print("types_order:", types_order)
+    print("rows:", rows)
+    print("總工件數:", len(agents))
 
     # --------------------------------------------------------
-    # 動畫更新：每 50ms 執行一次
+    # D. 動畫更新（回合制）
     # --------------------------------------------------------
+    sim_time = 0.0
+
     @viewer.on(interval=50)
     def update(frame):
+        nonlocal sim_time
         dt = 0.05
-        for agent in agents:
-            agent.step(dt)
-        # 強制刷新畫面
+        sim_time += dt
+
+        # -----------------------------
+        # Phase 1: 先讓正在加工的工件扣時間、完成就離開（釋放機台）
+        # -----------------------------
+        for a in agents:
+            if a.state == "processing":
+                a.step(dt, sim_time, machines_by_type)
+
+        # -----------------------------
+        # Phase 2: 再讓需要指派的工件進站（此時機台已經釋放）
+        # -----------------------------
+        for a in agents:
+            if a.state == "need_assign":
+                a.try_assign(sim_time, machines_by_type)
+
+        # -----------------------------
+        # Phase 3: 最後處理移動（畫面更新）
+        # -----------------------------
+        for a in agents:
+            if a.state == "moving":
+                a.step(dt, sim_time, machines_by_type)
+
         viewer.renderer.update()
 
-    # --------------------------------------------------------
-    # 印出佈局資訊（這段只要在 show 之前跑一次，不要放進 update）
-    # --------------------------------------------------------
-    print("2×3 佈局：")
-    for slot_index, pos in SLOT_POSITIONS.items():
-        found = [
-            mname for mname, m in layout.machines.items()
-            if abs(m.position[0] - pos[0]) < 1e-6 and abs(m.position[1] - pos[1]) < 1e-6
-        ]
-        if found:
-            print(f"Slot {slot_index}: {found[0]}  (load={machine_loads.get(found[0], 0):.1f})")
-        else:
-            print(f"Slot {slot_index}: （空）")
-
-    # --------------------------------------------------------
-    # 啟動 viewer（放在最後一句）
-    # --------------------------------------------------------
     viewer.show()
 
 
