@@ -1,5 +1,4 @@
 # 機台資料結構
-# 機台資料結構
 class Machine:
     def __init__(self, name, position, size, mtype=None, speed=1.0, capacity=1):
         """
@@ -22,6 +21,7 @@ class Machine:
 
         # 新增：忙碌到何時（回合制派工要用）
         self.busy_until = 0.0
+        self.current_wp = None
 
 # 產品流程資料結構
 class ProductFlow:
