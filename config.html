@@ -1,379 +1,572 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Factory Config UI</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Factory Config Builder</title>
   <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111a2e;
+      --muted:#9fb1d1;
+      --text:#e9f0ff;
+      --line:rgba(255,255,255,.08);
+      --accent:#7aa2ff;
+      --accent2:#46e3a7;
+      --danger:#ff6b6b;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", "Microsoft JhengHei", "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
     body{
-      font-family: "Microsoft JhengHei", sans-serif;
-      padding: 30px;
-      line-height: 1.6;
-      background: #ffffff;
+      margin:0;
+      font-family:var(--sans);
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(122,162,255,.25), transparent 60%),
+        radial-gradient(900px 500px at 90% 0%, rgba(70,227,167,.18), transparent 55%),
+        linear-gradient(180deg, #070b14, #0b1220 35%, #070b14);
+      color:var(--text);
     }
-    h1{
-      font-size: 48px;
-      margin-bottom: 16px;
+    .wrap{max-width:1100px; margin:42px auto; padding:0 18px;}
+    header{
+      display:flex; gap:18px; align-items:flex-end; justify-content:space-between;
+      margin-bottom:18px;
     }
-    h2{
-      font-size: 28px;
-      margin: 10px 0;
+    .title h1{
+      margin:0;
+      font-size:28px;
+      letter-spacing:.3px;
     }
-    .panel{
-      border: 1px solid #cfcfcf;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 1100px;
-      background: #fff;
-      margin-bottom: 30px;
+    .title p{margin:8px 0 0; color:var(--muted); line-height:1.5}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border:1px solid var(--line); border-radius:999px;
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:13px;
     }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
+    .card{
+      background:rgba(17,26,46,.85);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0;
+      padding:16px 18px;
+      font-size:16px;
+      letter-spacing:.2px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .card h2 span{color:var(--muted); font-weight:500; font-size:13px}
+    .card .body{padding:16px 18px;}
     .row{
-      display: grid;
-      grid-template-columns: 2fr 1fr 3fr 0.7fr;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 14px;
+      display:grid;
+      grid-template-columns: 1.2fr .55fr .65fr 110px;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
     }
+    .row.head{
+      margin-top:0;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.2px;
+      padding-bottom:10px;
+      border-bottom:1px dashed rgba(255,255,255,.12);
+    }
+    .row.head div{opacity:.9}
     input, select{
-      padding: 12px;
-      font-size: 18px;
-      border: 1px solid #777;
-      border-radius: 6px;
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(7,11,20,.55);
+      color:var(--text);
+      outline:none;
+      transition:.15s;
     }
-    button{
-      padding: 12px 18px;
-      font-size: 18px;
-      border-radius: 8px;
-      border: 1px solid #555;
-      background: #f5f5f5;
-      cursor: pointer;
+    input:focus, select:focus{
+      border-color:rgba(122,162,255,.7);
+      box-shadow:0 0 0 3px rgba(122,162,255,.18);
     }
-    button:hover{
-      background: #eaeaea;
+    input[type=number]{appearance:textfield}
+    .btn{
+      display:inline-flex; justify-content:center; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+      user-select:none;
+      transition:.15s;
+      font-weight:600;
     }
-    .speeds{
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.25)}
+    .btn:active{transform:translateY(0)}
+    .btn.primary{
+      background:linear-gradient(135deg, rgba(122,162,255,.95), rgba(70,227,167,.65));
+      border:0;
+      color:#06101e;
     }
-    .small{
-      width: 90px;
+    .btn.danger{
+      background:rgba(255,107,107,.12);
+      border-color:rgba(255,107,107,.35);
+      color:#ffd3d3;
     }
-    hr{
-      margin: 35px 0;
+    .btn.small{padding:8px 10px; border-radius:10px; font-size:13px}
+    .muted{color:var(--muted)}
+    .split{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px;
     }
-    .productCard{
-      border: 1px solid #ddd;
-      padding: 18px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      background: #fafafa;
+    .split .btn{flex:1}
+    .mini{
+      font-size:12px; color:var(--muted); line-height:1.5
     }
-    .productHeader{
-      display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
+    /* Product editor */
+    .product{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(7,11,20,.35);
+      border-radius:16px;
+      padding:12px;
+      margin-bottom:12px;
     }
-    .stepRow{
-      display: grid;
-      grid-template-columns: 2fr 1fr 0.7fr;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: center;
+    .product-top{
+      display:grid;
+      grid-template-columns: 1.1fr .55fr 110px;
+      gap:10px; align-items:center;
+      margin-bottom:12px;
     }
-    .hint{
-      font-size: 14px;
-      color: #666;
-      margin-top: 6px;
+    .route-step{
+      display:grid;
+      grid-template-columns: 1fr .7fr 110px;
+      gap:10px; align-items:center;
+      margin-bottom:10px;
     }
+    .hr{height:1px; background:rgba(255,255,255,.10); margin:12px 0;}
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      padding:10px 14px;
+      border-radius:14px;
+      background:rgba(0,0,0,.72);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
+      box-shadow:0 12px 40px rgba(0,0,0,.45);
+      font-size:13px;
+      opacity:0; pointer-events:none;
+      transition:.2s;
+    }
+    .toast.show{opacity:1}
   </style>
 </head>
 
 <body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>工廠配置 UI（方案 A：Type + 台數，自動命名）</h1>
+        <p>你輸入「機台種類、台數、speed」，系統會自動生成 machines，並讓 route 用下拉選單選 type，避免打錯字。</p>
+      </div>
+      <div class="pill">輸出：config.json</div>
+    </header>
 
-  <h1>1) 機台設定（type + 台數 + speed）</h1>
-  <div class="panel">
-    <div id="machineTypeList"></div>
+    <div class="grid">
+      <!-- Left: Machine Types -->
+      <div class="card">
+        <h2>1) 機台種類設定 <span>type × count × speed</span></h2>
+        <div class="body">
+          <div class="row head">
+            <div>type（類型）</div>
+            <div>台數</div>
+            <div>speed（倍率）</div>
+            <div></div>
+          </div>
 
-    <button type="button" id="addMachineTypeBtn">+ 新增機台種類</button>
-    <div class="hint">📌 台數改變會自動增減 speed 欄位。name 會在 Python 端自動生成 type_1、type_2…</div>
+          <div id="typeList"></div>
+
+          <div class="split">
+            <button class="btn primary" id="addTypeBtn">+ 新增機台種類</button>
+            <button class="btn" id="resetBtn">重設範例</button>
+          </div>
+
+          <p class="mini" style="margin-top:10px;">
+            命名規則：<b>type_1</b>, <b>type_2</b>…（例如：加工_1, 加工_2）。<br>
+            speed 可輸入單一值（套用全部），或用逗號分隔多個值（每台不同）：例如 <b>1, 1.5</b>。
+          </p>
+        </div>
+      </div>
+
+      <!-- Right: Products -->
+      <div class="card">
+        <h2>2) 產品與流程（route） <span class="muted">type 下拉會隨新增即時更新</span></h2>
+        <div class="body">
+          <div id="productList"></div>
+
+          <div class="split">
+            <button class="btn primary" id="addProductBtn">+ 新增工件/產品</button>
+            <button class="btn" id="downloadBtn">下載 config.json</button>
+          </div>
+
+          <p class="mini" style="margin-top:10px;">
+            下載後的 config.json 會包含：machines（展開後每台各自 speed）與 products（route 用 type）。
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <hr>
-
-  <h1>2) 工件設定（Products + Route）</h1>
-  <div class="panel">
-    <div id="productList"></div>
-
-    <button type="button" id="addProductBtn">+ 新增工件</button>
-    <div class="hint">📌 route 的 type 會自動從上面的 type 清單生成下拉選單。</div>
-  </div>
-
-  <button type="button" id="downloadBtn" style="font-size:22px; padding:14px 26px;">⬇ 下載 config.json</button>
+  <div id="toast" class="toast">已複製</div>
 
 <script>
-/* =========================================
-   0) 初始資料（你可自己改）
-========================================= */
-let machineTypes = [
-  { type: "前處理", count: 2, speeds: [1.0, 1.0] },
-  { type: "加工",   count: 2, speeds: [1.0, 1.5] },
-  { type: "品檢",   count: 1, speeds: [2.0] }
-];
+/* =========================
+   State
+========================= */
+const state = {
+  machine_types: [
+    { type: "前處理", count: 2, speed: "1,1" },
+    { type: "加工",   count: 2, speed: "1,1.5" },
+    { type: "品檢",   count: 1, speed: "2" },
+  ],
+  products: [
+    {
+      name: "工件A",
+      quantity: 5,
+      route: [
+        { type: "前處理", duration: 2.0 },
+        { type: "加工",   duration: 4.0 },
+        { type: "品檢",   duration: 2.0 },
+      ]
+    }
+  ]
+};
 
-let products = [
-  {
-    name: "工件A",
-    quantity: 5,
-    route: [
-      { type: "前處理", duration: 2.0 },
-      { type: "加工", duration: 4.0 },
-      { type: "品檢", duration: 2.0 }
-    ]
-  }
-];
+const MAX_TYPES = 12;
+const MAX_PRODUCTS = 10;
+const MAX_STEPS = 12;
 
-/* =========================================
-   1) 工具函式
-========================================= */
-function getTypeOptions(){
-  return machineTypes
-    .map(mt => (mt.type || "").trim())
-    .filter(t => t.length > 0);
+/* =========================
+   Helpers
+========================= */
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"), 1200);
 }
 
-/* =========================================
-   2) Machine Types UI
-========================================= */
-function renderMachineTypes(){
-  const list = document.getElementById("machineTypeList");
-  list.innerHTML = "";
+function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
-  machineTypes.forEach((mt, idx) => {
+function getTypeOptions(){
+  const seen = new Set();
+  const list = [];
+  for(const t of state.machine_types){
+    const type = (t.type || "").trim();
+    if(!type) continue;
+    if(seen.has(type)) continue;
+    seen.add(type);
+    list.push(type);
+  }
+  return list;
+}
+
+/* 解析 speed 欄位：允許
+   - "1" → [1]
+   - "1, 1.5" → [1, 1.5]
+*/
+function parseSpeedList(str){
+  const s = (str ?? "").toString().trim();
+  if(!s) return [1.0];
+  const parts = s.split(",").map(x => parseFloat(x.trim())).filter(x => isFinite(x));
+  if(parts.length === 0) return [1.0];
+  return parts;
+}
+
+function expandMachines(){
+  const machines = [];
+  for(const mt of state.machine_types){
+    const type = (mt.type || "").trim();
+    const count = clamp(parseInt(mt.count || 0), 0, 999);
+    if(!type || count <= 0) continue;
+
+    const speedList = parseSpeedList(mt.speed);
+    for(let i=1;i<=count;i++){
+      const sp = speedList[Math.min(i-1, speedList.length-1)];
+      machines.push({
+        name: `${type}_${i}`,
+        type: type,
+        speed: sp
+      });
+    }
+  }
+  return machines;
+}
+
+function buildConfig(){
+  return {
+    machines: expandMachines(),
+    products: state.products.map(p => ({
+      name: (p.name || "").trim() || "未命名工件",
+      quantity: clamp(parseInt(p.quantity || 1), 1, 999),
+      route: (p.route || []).map(s => ({
+        type: s.type,
+        duration: parseFloat(s.duration || 1.0)
+      })).filter(s => s.type)
+    }))
+  };
+}
+
+/* =========================
+   Render: Machine Types
+========================= */
+function renderTypeList(){
+  const host = document.getElementById("typeList");
+  host.innerHTML = "";
+
+  state.machine_types.forEach((mt, idx) => {
     const row = document.createElement("div");
     row.className = "row";
 
-    // type input
-    const typeInput = document.createElement("input");
-    typeInput.value = mt.type;
-    typeInput.placeholder = "輸入 type（例如：加工）";
-    typeInput.oninput = () => {
-      mt.type = typeInput.value;
-      updateAllRouteDropdowns();
-    };
+    row.innerHTML = `
+      <div><input type="text" value="${mt.type ?? ""}" placeholder="例如：加工" data-k="type" data-i="${idx}"></div>
+      <div><input type="number" min="0" step="1" value="${mt.count ?? 1}" data-k="count" data-i="${idx}"></div>
+      <div><input type="text" value="${mt.speed ?? "1"}" placeholder="例如：1 或 1,1.5" data-k="speed" data-i="${idx}"></div>
+      <div><button class="btn danger small" data-act="delType" data-i="${idx}">刪除</button></div>
+    `;
+    host.appendChild(row);
+  });
 
-    // count input
-    const countInput = document.createElement("input");
-    countInput.type = "number";
-    countInput.min = "1";
-    countInput.value = mt.count;
-    countInput.oninput = () => {
-      let newCount = parseInt(countInput.value);
-      if (isNaN(newCount) || newCount < 1) newCount = 1;
-      mt.count = newCount;
+  // Bind
+  host.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("input", (e)=>{
+      const i = parseInt(e.target.dataset.i);
+      const k = e.target.dataset.k;
+      let v = e.target.value;
 
-      // speeds array resize
-      while (mt.speeds.length < newCount) mt.speeds.push(1.0);
-      while (mt.speeds.length > newCount) mt.speeds.pop();
+      if(k === "count") v = clamp(parseInt(v||0), 0, 999);
+      state.machine_types[i][k] = v;
 
-      renderMachineTypes();
-      updateAllRouteDropdowns();
-    };
-
-    // speeds inputs
-    const speedsDiv = document.createElement("div");
-    speedsDiv.className = "speeds";
-
-    mt.speeds.forEach((sp, i) => {
-      const spInput = document.createElement("input");
-      spInput.type = "number";
-      spInput.step = "0.1";
-      spInput.value = sp;
-      spInput.className = "small";
-      spInput.title = `${mt.type || "type"}_${i+1} speed`;
-
-      spInput.oninput = () => {
-        mt.speeds[i] = parseFloat(spInput.value);
-      };
-
-      speedsDiv.appendChild(spInput);
+      syncRouteTypes();
+      renderProducts();
     });
+  });
 
-    // delete btn
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "刪除";
-    delBtn.onclick = () => {
-      machineTypes.splice(idx, 1);
-      renderMachineTypes();
-      updateAllRouteDropdowns();
-    };
-
-    row.appendChild(typeInput);
-    row.appendChild(countInput);
-    row.appendChild(speedsDiv);
-    row.appendChild(delBtn);
-
-    list.appendChild(row);
+  host.querySelectorAll("button[data-act='delType']").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const i = parseInt(btn.dataset.i);
+      state.machine_types.splice(i,1);
+      syncRouteTypes();
+      renderTypeList();
+      renderProducts();
+    });
   });
 }
 
-document.getElementById("addMachineTypeBtn").onclick = () => {
-  machineTypes.push({ type: "新機台", count: 1, speeds: [1.0] });
-  renderMachineTypes();
-  updateAllRouteDropdowns();
-};
+function addType(){
+  if(state.machine_types.length >= MAX_TYPES){
+    toast("機台種類數已達上限");
+    return;
+  }
+  state.machine_types.push({type:"新機台", count:1, speed:"1"});
+  renderTypeList();
+  syncRouteTypes();
+  renderProducts();
+}
 
-/* =========================================
-   3) Products + Route UI
-========================================= */
+/* =========================
+   Render: Products & Routes
+========================= */
 function renderProducts(){
-  const list = document.getElementById("productList");
-  list.innerHTML = "";
-
+  const host = document.getElementById("productList");
+  host.innerHTML = "";
   const typeOptions = getTypeOptions();
 
-  products.forEach((p, pIdx) => {
-    const card = document.createElement("div");
-    card.className = "productCard";
+  state.products.forEach((p, pidx)=>{
+    const box = document.createElement("div");
+    box.className = "product";
 
-    // header
-    const header = document.createElement("div");
-    header.className = "productHeader";
+    const top = document.createElement("div");
+    top.className = "product-top";
+    top.innerHTML = `
+      <div><input type="text" value="${p.name ?? ""}" placeholder="工件名稱" data-pk="name" data-pi="${pidx}"></div>
+      <div><input type="number" min="1" step="1" value="${p.quantity ?? 1}" data-pk="quantity" data-pi="${pidx}"></div>
+      <div><button class="btn danger small" data-act="delProduct" data-pi="${pidx}">刪除</button></div>
+    `;
+    box.appendChild(top);
 
-    const nameInput = document.createElement("input");
-    nameInput.value = p.name;
-    nameInput.placeholder = "工件名稱";
-    nameInput.oninput = () => p.name = nameInput.value;
+    const stepsWrap = document.createElement("div");
+    (p.route || []).forEach((s, sidx)=>{
+      const row = document.createElement("div");
+      row.className = "route-step";
 
-    const qtyInput = document.createElement("input");
-    qtyInput.type = "number";
-    qtyInput.min = "1";
-    qtyInput.value = p.quantity;
-    qtyInput.oninput = () => p.quantity = parseInt(qtyInput.value) || 1;
-
-    header.appendChild(nameInput);
-    header.appendChild(qtyInput);
-
-    // route steps
-    const routeDiv = document.createElement("div");
-
-    p.route.forEach((step, sIdx) => {
-      const stepRow = document.createElement("div");
-      stepRow.className = "stepRow";
-
-      // type select
-      const sel = document.createElement("select");
-      typeOptions.forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        sel.appendChild(opt);
-      });
-
-      // 如果原本 step.type 被刪掉了 → fallback
-      if (!typeOptions.includes(step.type)) {
-        step.type = typeOptions[0] || "";
-      }
-      sel.value = step.type;
-      sel.onchange = () => step.type = sel.value;
-
-      // duration
-      const durInput = document.createElement("input");
-      durInput.type = "number";
-      durInput.step = "0.5";
-      durInput.value = step.duration;
-      durInput.oninput = () => step.duration = parseFloat(durInput.value);
-
-      // delete step
-      const delStepBtn = document.createElement("button");
-      delStepBtn.textContent = "刪除";
-      delStepBtn.onclick = () => {
-        p.route.splice(sIdx, 1);
-        renderProducts();
-      };
-
-      stepRow.appendChild(sel);
-      stepRow.appendChild(durInput);
-      stepRow.appendChild(delStepBtn);
-
-      routeDiv.appendChild(stepRow);
+      row.innerHTML = `
+        <div>
+          <select data-sel="type" data-pi="${pidx}" data-si="${sidx}">
+            ${typeOptions.map(t => `<option value="${t}" ${t===s.type ? "selected":""}>${t}</option>`).join("")}
+          </select>
+        </div>
+        <div>
+          <input type="number" min="0.1" step="0.1" value="${s.duration ?? 1.0}" data-sel="duration" data-pi="${pidx}" data-si="${sidx}">
+        </div>
+        <div>
+          <button class="btn small" data-act="delStep" data-pi="${pidx}" data-si="${sidx}">刪除</button>
+        </div>
+      `;
+      stepsWrap.appendChild(row);
     });
 
-    // add step
+    box.appendChild(stepsWrap);
+
     const addStepBtn = document.createElement("button");
-    addStepBtn.textContent = "+ 新增路徑步驟";
-    addStepBtn.onclick = () => {
-      const options = getTypeOptions();
-      p.route.push({
-        type: options[0] || "",
-        duration: 2.0
-      });
+    addStepBtn.className = "btn small";
+    addStepBtn.textContent = "+ 新增流程步驟";
+    addStepBtn.addEventListener("click", ()=>{
+      if((p.route||[]).length >= MAX_STEPS){
+        toast("流程步驟已達上限");
+        return;
+      }
+      const defaultType = typeOptions[0] || "";
+      p.route = p.route || [];
+      p.route.push({type: defaultType, duration: 1.0});
       renderProducts();
-    };
+    });
+    box.appendChild(addStepBtn);
 
-    // delete product
-    const delProductBtn = document.createElement("button");
-    delProductBtn.textContent = "刪除此工件";
-    delProductBtn.style.marginLeft = "12px";
-    delProductBtn.onclick = () => {
-      products.splice(pIdx, 1);
+    host.appendChild(box);
+  });
+
+  // Bind product inputs
+  host.querySelectorAll("input[data-pk]").forEach(inp=>{
+    inp.addEventListener("input", (e)=>{
+      const pi = parseInt(e.target.dataset.pi);
+      const pk = e.target.dataset.pk;
+      let v = e.target.value;
+      if(pk === "quantity") v = clamp(parseInt(v||1), 1, 999);
+      state.products[pi][pk] = v;
+    });
+  });
+
+  // Bind route
+  host.querySelectorAll("select[data-sel='type']").forEach(sel=>{
+    sel.addEventListener("change", (e)=>{
+      const pi = parseInt(e.target.dataset.pi);
+      const si = parseInt(e.target.dataset.si);
+      state.products[pi].route[si].type = e.target.value;
+    });
+  });
+  host.querySelectorAll("input[data-sel='duration']").forEach(inp=>{
+    inp.addEventListener("input", (e)=>{
+      const pi = parseInt(e.target.dataset.pi);
+      const si = parseInt(e.target.dataset.si);
+      state.products[pi].route[si].duration = parseFloat(e.target.value||1.0);
+    });
+  });
+
+  // Buttons
+  host.querySelectorAll("button[data-act='delProduct']").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const pi = parseInt(btn.dataset.pi);
+      state.products.splice(pi,1);
       renderProducts();
-    };
-
-    card.appendChild(header);
-    card.appendChild(routeDiv);
-    card.appendChild(addStepBtn);
-    card.appendChild(delProductBtn);
-
-    list.appendChild(card);
+    });
+  });
+  host.querySelectorAll("button[data-act='delStep']").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const pi = parseInt(btn.dataset.pi);
+      const si = parseInt(btn.dataset.si);
+      state.products[pi].route.splice(si,1);
+      renderProducts();
+    });
   });
 }
 
-document.getElementById("addProductBtn").onclick = () => {
-  const typeOptions = getTypeOptions();
-  products.push({
-    name: "新工件",
+function syncRouteTypes(){
+  const opts = getTypeOptions();
+  const fallback = opts[0] || "";
+  for(const p of state.products){
+    for(const s of (p.route||[])){
+      if(!opts.includes(s.type)){
+        s.type = fallback;
+      }
+    }
+  }
+}
+
+function addProduct(){
+  if(state.products.length >= MAX_PRODUCTS){
+    toast("產品數已達上限");
+    return;
+  }
+  const opts = getTypeOptions();
+  state.products.push({
+    name: `工件${String.fromCharCode(65 + state.products.length)}`,
     quantity: 1,
-    route: [{ type: typeOptions[0] || "", duration: 2.0 }]
+    route: [{type: opts[0] || "", duration: 1.0}]
   });
-  renderProducts();
-};
-
-function updateAllRouteDropdowns(){
-  // 最簡單安全：整個重新 render
   renderProducts();
 }
 
-/* =========================================
-   4) Download JSON
-========================================= */
-document.getElementById("downloadBtn").onclick = () => {
-  const cfg = {
-    machine_types: machineTypes.map(mt => ({
-      type: (mt.type || "").trim(),
-      count: parseInt(mt.count) || 1,
-      speeds: mt.speeds.map(s => parseFloat(s))
-    })),
-    products: products
-  };
+/* =========================
+   Actions
+========================= */
+document.getElementById("addTypeBtn").addEventListener("click", addType);
+document.getElementById("addProductBtn").addEventListener("click", addProduct);
 
-  const blob = new Blob([JSON.stringify(cfg, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  state.machine_types = [
+    { type: "前處理", count: 2, speed: "1,1" },
+    { type: "加工",   count: 2, speed: "1,1.5" },
+    { type: "品檢",   count: 1, speed: "2" },
+  ];
+  state.products = [
+    {
+      name: "工件A",
+      quantity: 5,
+      route: [
+        { type: "前處理", duration: 2.0 },
+        { type: "加工",   duration: 4.0 },
+        { type: "品檢",   duration: 2.0 },
+      ]
+    }
+  ];
+  renderTypeList();
+  renderProducts();
+  toast("已重設");
+});
 
+document.getElementById("downloadBtn").addEventListener("click", ()=>{
+  const cfg = buildConfig();
+  const blob = new Blob([JSON.stringify(cfg, null, 2)], {type:"application/json"});
   const a = document.createElement("a");
-  a.href = url;
+  a.href = URL.createObjectURL(blob);
   a.download = "config.json";
   a.click();
+  URL.revokeObjectURL(a.href);
+  toast("已下載 config.json");
+});
 
-  URL.revokeObjectURL(url);
-};
-
-/* =========================================
+/* =========================
    Init
-========================================= */
-renderMachineTypes();
+========================= */
+renderTypeList();
 renderProducts();
-
 </script>
 </body>
 </html>

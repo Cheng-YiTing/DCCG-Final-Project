@@ -1,31 +1,29 @@
 {
-  "machine_types": [
+  "machines": [
     {
+      "name": "前處理_1",
       "type": "前處理",
-      "count": 2,
-      "speeds": [
-        3,
-        3
-      ]
+      "speed": 1
     },
     {
+      "name": "前處理_2",
+      "type": "前處理",
+      "speed": 1
+    },
+    {
+      "name": "加工_1",
       "type": "加工",
-      "count": 6,
-      "speeds": [
-        1,
-        1.2,
-        1,
-        1,
-        0.8,
-        1
-      ]
+      "speed": 1
     },
     {
+      "name": "加工_2",
+      "type": "加工",
+      "speed": 1.5
+    },
+    {
+      "name": "品檢_1",
       "type": "品檢",
-      "count": 1,
-      "speeds": [
-        6
-      ]
+      "speed": 2
     }
   ],
   "products": [
@@ -48,20 +46,30 @@
       ]
     },
     {
-      "name": "新工件",
+      "name": "工件B",
       "quantity": 1,
       "route": [
         {
           "type": "前處理",
-          "duration": 2
-        },
-        {
-          "type": "加工",
-          "duration": 2
+          "duration": 1
         },
         {
           "type": "品檢",
-          "duration": 2
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "name": "工件C",
+      "quantity": 1,
+      "route": [
+        {
+          "type": "加工",
+          "duration": 1
+        },
+        {
+          "type": "品檢",
+          "duration": 1
         }
       ]
     }
