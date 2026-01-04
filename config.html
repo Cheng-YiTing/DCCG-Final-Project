@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Factory Config Builder</title>
+  <title>Factory Config</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -235,11 +235,11 @@
   <div class="wrap">
     <header>
       <div class="title">
-        <h1>工廠配置視覺化</h1>
+        <h1>工廠配置設定</h1>
         <p>使用流程：<br>
         ① 左側設定機台資料（機台名稱、台數、speed 可設定）<br>
         ② 右側新增產品並設定加工流程<br>
-        ③ 下載 config.json → 進到 VS code 執行視覺化</p>
+        ③ 下載 config.json → 將 config.json 移動至 Final-Project 資料夾 → 雙擊 <b>run_viewer.bat</b> 顯示視覺化</p>
       </div>
     </header>
 
@@ -275,9 +275,9 @@
           </h2>
           <div class="body">
             <p class="note-text">
-              speed 值越大代表加工速度越快，展現&nbsp;<b>新舊機台處理速度差異</b>，視覺化將以「藍 (慢) → 紅 (快)」的機台顏色呈現。<br><br>
+              speed 值&nbsp;<b>越大代表加工速度越快</b>，展現&nbsp;<b>新舊機台處理速度差異</b>，視覺化將以「藍 (慢) → 紅 (快)」的機台顏色呈現。<br><br>
               可輸入單一值（套用全部），或用逗號分隔多個值（每台不同）<br>
-              例如： <b>1, 1.5</b> &nbsp;表示第一台速度為 1 (藍)，第二台速度為 1.5 (紅)<br>
+              例如： 1, 1.5&nbsp;表示第一台速度較&nbsp;<b>慢</b> (藍)，第二台速度較&nbsp;<b>快</b> (紅)<br>
             </p>
 
             <div class="note-img">
@@ -299,7 +299,7 @@
           </div>
 
           <p class="mini" style="margin-top:10px;">
-            config.json 是你的工廠配置檔，下載後將 config.json 放到 Final-Project 資料夾<br>執行 grid_viewer.py 即可視覺化模擬
+            config.json 是你的工廠配置檔，下載後將 config.json 放到 Final-Project 資料夾<br>雙擊 run_viewer.bat 即可視覺化模擬
           </p>
         </div>
       </div>
@@ -314,18 +314,18 @@
 ========================= */
 const state = {
   machine_types: [
-    { type: "前處理", count: 2, speed: "1,1" },
-    { type: "加工",   count: 2, speed: "1,1.5" },
-    { type: "品檢",   count: 1, speed: "2" },
+    { type: "板材裁切機", count: 2, speed: "1,1" },
+    { type: "CNC 雕刻機",   count: 2, speed: "1,1.5" },
+    { type: "砂帶研磨機",   count: 1, speed: "2" },
   ],
   products: [
     {
       name: "工件A",
       quantity: 5,
       route: [
-        { type: "前處理", duration: 2.0 },
-        { type: "加工",   duration: 4.0 },
-        { type: "品檢",   duration: 2.0 },
+        { type: "板材裁切機", duration: 2.0 },
+        { type: "CNC 雕刻機",   duration: 4.0 },
+        { type: "砂帶研磨機",   duration: 2.0 },
       ]
     }
   ]
@@ -418,7 +418,7 @@ function renderTypeList(){
     row.className = "row";
 
     row.innerHTML = `
-      <div><input type="text" value="${mt.type ?? ""}" placeholder="例如：加工" data-k="type" data-i="${idx}"></div>
+      <div><input type="text" value="${mt.type ?? ""}" placeholder="例如：CNC 雕刻機" data-k="type" data-i="${idx}"></div>
       <div><input type="number" min="0" step="1" value="${mt.count ?? 1}" data-k="count" data-i="${idx}"></div>
       <div><input type="text" value="${mt.speed ?? "1"}" placeholder="例如：1 或 1,1.5" data-k="speed" data-i="${idx}"></div>
       <div><button class="btn danger small" data-act="delType" data-i="${idx}">刪除</button></div>
@@ -622,18 +622,18 @@ document.getElementById("addProductBtn").addEventListener("click", addProduct);
 
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   state.machine_types = [
-    { type: "前處理", count: 2, speed: "1,1" },
-    { type: "加工",   count: 2, speed: "1,1.5" },
-    { type: "品檢",   count: 1, speed: "2" },
+    { type: "板材裁切機", count: 2, speed: "1,1" },
+    { type: "CNC 雕刻機",   count: 2, speed: "1,1.5" },
+    { type: "砂帶研磨機",   count: 1, speed: "2" },
   ];
   state.products = [
     {
       name: "工件A",
       quantity: 5,
       route: [
-        { type: "前處理", duration: 2.0 },
-        { type: "加工",   duration: 4.0 },
-        { type: "品檢",   duration: 2.0 },
+        { type: "板材裁切機", duration: 2.0 },
+        { type: "CNC 雕刻機",   duration: 4.0 },
+        { type: "砂帶研磨機",   duration: 2.0 },
       ]
     }
   ];

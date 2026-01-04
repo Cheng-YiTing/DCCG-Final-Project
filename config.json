@@ -1,28 +1,28 @@
 {
   "machines": [
     {
-      "name": "前處理_1",
-      "type": "前處理",
+      "name": "板材裁切機_1",
+      "type": "板材裁切機",
       "speed": 1
     },
     {
-      "name": "前處理_2",
-      "type": "前處理",
+      "name": "板材裁切機_2",
+      "type": "板材裁切機",
       "speed": 1
     },
     {
-      "name": "加工_1",
-      "type": "加工",
+      "name": "CNC 雕刻機_1",
+      "type": "CNC 雕刻機",
       "speed": 1
     },
     {
-      "name": "加工_2",
-      "type": "加工",
+      "name": "CNC 雕刻機_2",
+      "type": "CNC 雕刻機",
       "speed": 1.5
     },
     {
-      "name": "品檢_1",
-      "type": "品檢",
+      "name": "砂帶研磨機_1",
+      "type": "砂帶研磨機",
       "speed": 2
     }
   ],
@@ -32,15 +32,15 @@
       "quantity": 5,
       "route": [
         {
-          "type": "前處理",
+          "type": "板材裁切機",
           "duration": 2
         },
         {
-          "type": "加工",
+          "type": "CNC 雕刻機",
           "duration": 4
         },
         {
-          "type": "品檢",
+          "type": "砂帶研磨機",
           "duration": 2
         }
       ]
