@@ -39,14 +39,7 @@
       font-size:28px;
       letter-spacing:.3px;
     }
-    .title p{margin:8px 0 0; color:var(--muted); line-height:1.5}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 12px; border:1px solid var(--line); border-radius:999px;
-      background:rgba(255,255,255,.03);
-      color:var(--muted);
-      font-size:13px;
-    }
+    .title p{margin:8px 0 0; color:var(--muted); line-height:1.5; font-size:14px;}
     .grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -138,6 +131,41 @@
     .mini{
       font-size:12px; color:var(--muted); line-height:1.5
     }
+
+    /* ===== 新增：speed 說明卡片（風格接近但背景略不同） ===== */
+    .card.note{
+      background:
+        radial-gradient(900px 420px at 15% -10%, rgba(70,227,167,.18), transparent 60%),
+        rgba(15, 32, 46, .86);
+      border:1px solid rgba(70,227,167,.12);
+    }
+    .note-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .note-text{
+      margin:0 0 12px;
+      font-size:15px;
+      line-height:1.65;
+      color:rgba(233,240,255,.92);
+    }
+    .note-text b{color:#ffffff;}
+    .note-img{
+      width:100%;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(7,11,20,.35);
+      overflow:hidden;
+      box-shadow:0 12px 30px rgba(0,0,0,.25);
+    }
+    .note-img img{
+      display:block;
+      width:100%;
+      height:auto;
+    }
+
     /* Product editor */
     .product{
       border:1px solid rgba(255,255,255,.10);
@@ -158,6 +186,26 @@
       gap:10px; align-items:center;
       margin-bottom:10px;
     }
+
+    .product-top.head{
+      margin-top:0;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.2px;
+      padding-bottom:10px;
+      border-bottom:1px dashed rgba(255,255,255,.12);
+    }
+    .product-top.head div{opacity:.9}
+    .route-step.head{
+      margin-top:0;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.2px;
+      padding-bottom:10px;
+      border-bottom:1px dashed rgba(255,255,255,.12);
+    }
+    .route-step.head div{opacity:.9}
+
     .hr{height:1px; background:rgba(255,255,255,.10); margin:12px 0;}
     .toast{
       position:fixed;
@@ -175,6 +223,11 @@
       transition:.2s;
     }
     .toast.show{opacity:1}
+    #downloadBtn{
+      background:linear-gradient(135deg, rgba(232, 123, 121, 0.95), rgba(255, 166, 92, 0.65));
+      border:0;
+      color:#06101e;
+    }
   </style>
 </head>
 
@@ -182,41 +235,61 @@
   <div class="wrap">
     <header>
       <div class="title">
-        <h1>工廠配置 UI（方案 A：Type + 台數，自動命名）</h1>
-        <p>你輸入「機台種類、台數、speed」，系統會自動生成 machines，並讓 route 用下拉選單選 type，避免打錯字。</p>
+        <h1>工廠配置視覺化</h1>
+        <p>使用流程：<br>
+        ① 左側設定機台資料（機台名稱、台數、speed 可設定）<br>
+        ② 右側新增產品並設定加工流程<br>
+        ③ 下載 config.json → 進到 VS code 執行視覺化</p>
       </div>
-      <div class="pill">輸出：config.json</div>
     </header>
 
     <div class="grid">
-      <!-- Left: Machine Types -->
-      <div class="card">
-        <h2>1) 機台種類設定 <span>type × count × speed</span></h2>
-        <div class="body">
-          <div class="row head">
-            <div>type（類型）</div>
-            <div>台數</div>
-            <div>speed（倍率）</div>
-            <div></div>
+      <!-- Left column: Machine Types + 新增 speed 說明卡 -->
+      <div>
+        <!-- Left: Machine Types -->
+        <div class="card">
+          <h2>1. 機台種類設定</h2>
+          <div class="body">
+            <div class="row head">
+              <div>機台名稱</div>
+              <div>台數</div>
+              <div>speed</div>
+              <div></div>
+            </div>
+
+            <div id="typeList"></div>
+
+            <div class="split">
+              <button class="btn primary" id="addTypeBtn">+ 新增機台種類</button>
+              <button class="btn" id="resetBtn">重設範例</button>
+            </div>
+
+            <!-- 原本在左卡片底部的 speed 文字已移到下方新 card -->
           </div>
+        </div>
 
-          <div id="typeList"></div>
+        <!--speed 補充說明卡片（紅框位置） -->
+        <div class="card note" style="margin-top:16px;">
+          <h2 class="note-title">
+            <div>speed 補充說明</div>
+          </h2>
+          <div class="body">
+            <p class="note-text">
+              speed 值越大代表加工速度越快，展現&nbsp;<b>新舊機台處理速度差異</b>，視覺化將以「藍 (慢) → 紅 (快)」的機台顏色呈現。<br><br>
+              可輸入單一值（套用全部），或用逗號分隔多個值（每台不同）<br>
+              例如： <b>1, 1.5</b> &nbsp;表示第一台速度為 1 (藍)，第二台速度為 1.5 (紅)<br>
+            </p>
 
-          <div class="split">
-            <button class="btn primary" id="addTypeBtn">+ 新增機台種類</button>
-            <button class="btn" id="resetBtn">重設範例</button>
+            <div class="note-img">
+              <img src="speed範例.png" alt="speed 範例示意圖">
+            </div>
           </div>
-
-          <p class="mini" style="margin-top:10px;">
-            命名規則：<b>type_1</b>, <b>type_2</b>…（例如：加工_1, 加工_2）。<br>
-            speed 可輸入單一值（套用全部），或用逗號分隔多個值（每台不同）：例如 <b>1, 1.5</b>。
-          </p>
         </div>
       </div>
 
       <!-- Right: Products -->
       <div class="card">
-        <h2>2) 產品與流程（route） <span class="muted">type 下拉會隨新增即時更新</span></h2>
+        <h2>2. 工件與加工流程</h2>
         <div class="body">
           <div id="productList"></div>
 
@@ -226,7 +299,7 @@
           </div>
 
           <p class="mini" style="margin-top:10px;">
-            下載後的 config.json 會包含：machines（展開後每台各自 speed）與 products（route 用 type）。
+            config.json 是你的工廠配置檔，下載後將 config.json 放到 Final-Project 資料夾<br>執行 grid_viewer.py 即可視覺化模擬
           </p>
         </div>
       </div>
@@ -402,6 +475,15 @@ function renderProducts(){
     const box = document.createElement("div");
     box.className = "product";
 
+    const topHead = document.createElement("div");
+    topHead.className = "product-top head";
+    topHead.innerHTML = `
+      <div>工件名稱</div>
+      <div>數量</div>
+      <div></div>
+    `;
+    box.appendChild(topHead);
+
     const top = document.createElement("div");
     top.className = "product-top";
     top.innerHTML = `
@@ -410,6 +492,15 @@ function renderProducts(){
       <div><button class="btn danger small" data-act="delProduct" data-pi="${pidx}">刪除</button></div>
     `;
     box.appendChild(top);
+
+    const stepHead = document.createElement("div");
+    stepHead.className = "route-step head";
+    stepHead.innerHTML = `
+      <div>機台名稱</div>
+      <div>duration</div>
+      <div></div>
+    `;
+    box.appendChild(stepHead);
 
     const stepsWrap = document.createElement("div");
     (p.route || []).forEach((s, sidx)=>{

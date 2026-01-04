@@ -44,34 +44,6 @@
           "duration": 2
         }
       ]
-    },
-    {
-      "name": "工件B",
-      "quantity": 1,
-      "route": [
-        {
-          "type": "前處理",
-          "duration": 1
-        },
-        {
-          "type": "品檢",
-          "duration": 1
-        }
-      ]
-    },
-    {
-      "name": "工件C",
-      "quantity": 1,
-      "route": [
-        {
-          "type": "加工",
-          "duration": 1
-        },
-        {
-          "type": "品檢",
-          "duration": 1
-        }
-      ]
     }
   ]
 }
