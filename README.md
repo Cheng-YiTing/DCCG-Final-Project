@@ -6,10 +6,11 @@
 專案根目錄主要檔案如下：
 
 - `config.html`：工廠設定介面（設定機台與工件流程，下載 `config.json`）
-- `config.json`：工廠配置檔（由 `config.html` 下載，需放回專案根目錄）
-- `visualization.py`：視覺化模擬主程式（讀取 `config.json` 並顯示動畫）
+- `config.json`：工廠配置檔（由 `config.html` 下載，需放至專案根目錄）
 - `run_viewer.py`：跨平台啟動器（自動檢查環境、安裝套件、執行 viewer）
+- `visualization.py`：視覺化模擬主程式（讀取 `config.json` 並顯示動畫）
 - `requirements.txt`：Python 套件需求清單（compas, compas_viewer）
+- `picture資料夾`：含專案說明所需圖片
 
 
 ## 2. Requirements
@@ -31,18 +32,19 @@
 
 ![ConfigHTML Demo](picture/HTMLsample.png)
 2. 設定以下內容：
-   - 機台種類、台數、速度 speed
-   - 工件（產品）與加工流程 route
-   - 輸入限制與上限說明（Input Constraints）
+   - 機台種類、台數、加工速度 speed
+   - 工件與加工流程
+   - 輸入限制與上限說明
+
      為避免設定資料過大或不合理，本系統針對「機台種類、機台台數、工件數量與流程步驟」設有上限限制。當使用者輸入或新增資料超過上限時，系統將阻止新增，並顯示提示訊息
 
 | 類別 | 限制項目 | 上限 |
 |---|---|---|
-| 機台設定 | 機台種類數（Machine Types） | 10 種 |
-| 機台設定 | 每種機台台數 count | 10 台 |
-| 工件設定 | 工件/產品種類數（Products） | 10 個 |
-| 工件設定 | 每個工件流程步驟（Route Steps） | 10 步 |
-| 工件設定 | 每個工件數量 quantity | 5  個 |
+| 機台設定 | 機台種類數 | 10 種 |
+| 機台設定 | 每種機台台數 | 10 台 |
+| 工件設定 | 工件/產品種類數 | 10 個 |
+| 工件設定 | 每個工件流程步驟 | 10 步 |
+| 工件設定 | 每個工件數量 | 5  個 |
 
 3. 點選「下載 config.json」
 
@@ -60,9 +62,9 @@
 ### 4.1 Windows：在專案資料夾右鍵開啟終端機執行
 
 1. 進入 `DCCG-Final-Project-main` 專案資料夾
-2. 在資料夾內空白處 **右鍵**
+2. 在資料夾內空白處點一下 **右鍵**
 3. 選擇以下其中一種（依你的 Windows 版本顯示不同）：
-   - 在終端機開啟（Open in Terminal）
+   - 在終端機中開啟（Open in Terminal）
    - 在 PowerShell 視窗中開啟（Open PowerShell window here）
    - 在此處開啟命令提示字元（Open Command Prompt here）
 4. 在終端機中輸入：
