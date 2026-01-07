@@ -48,9 +48,6 @@
 
 ## 4. 啟動方式（命令列，推薦）
 
-> 本專案採用命令列啟動，確保 Windows/macOS 都能穩定運行，並避免 bat 腳本在部分環境被阻擋。  
-> 建議直接在專案資料夾內「右鍵開啟終端機」後執行指令。
-
 ### 4.1 Windows：在專案資料夾右鍵開啟終端機執行
 
 1. 進入 `DCCG-Final-Project-main` 專案資料夾
@@ -63,3 +60,12 @@
 
 ```bash
 py -3 run_viewer.py
+
+### 4.2 macOS：在專案資料夾開啟終端機後執行
+1. 打開 Finder，進入 DCCG-Final-Project-main 資料夾所在位置
+2. 在 DCCG-Final-Project-main 資料夾上 右鍵
+3. 若你已啟用 Finder 服務功能，可看到：
+   -**服務（Services） → 新增在資料夾位置的終端機（New Terminal at Folder）**
+4. 終端機開啟後輸入：
+```bash
+python3 run_viewer.py
