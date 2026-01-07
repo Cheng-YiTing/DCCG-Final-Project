@@ -48,9 +48,9 @@
 1. 進入 `DCCG-Final-Project-main` 專案資料夾
 2. 在資料夾內空白處 **右鍵**
 3. 選擇以下其中一種（依你的 Windows 版本顯示不同）：
-   - **在終端機開啟（Open in Terminal）**
-   - **在 PowerShell 視窗中開啟（Open PowerShell window here）**
-   - **在此處開啟命令提示字元（Open Command Prompt here）**
+   - 在終端機開啟（Open in Terminal）
+   - 在 PowerShell 視窗中開啟（Open PowerShell window here）
+   - 在此處開啟命令提示字元（Open Command Prompt here）
 4. 在終端機中輸入：
 
 ```bash
@@ -61,22 +61,24 @@ py -3 run_viewer.py
 1. 打開 Finder，進入 `DCCG-Final-Project-main` 資料夾所在位置
 2. 在 `DCCG-Final-Project-main` 資料夾上 右鍵
 3. 若你已啟用 Finder 服務功能，可看到：
-   - **服務（Services）→ 新增在資料夾位置的終端機（New Terminal at Folder）**
+   - 服務（Services）→ 新增在資料夾位置的終端機（New Terminal at Folder）
 4. 終端機開啟後輸入：
 ```bash
 python3 run_viewer.py
 ```
 
-執行成功結果如下圖 ↓
+### 執行成功結果如下圖 ↓
 ![viewer Demo](picture/viewerSample.png)
 
 ## 5. Known Issues
 目前系統已可穩定完成基本配置與流程視覺化，但在較複雜的輸入情境下仍有部分限制，後續將持續優化：
 
 **⚠️ 工件重疊造成視覺誤判**
+
 當工件數量較多、加工流程較長或同時進入相同區域時，部分工件在視覺化過程中可能因空間位置接近而產生重疊，導致使用者在觀看時可能誤以為某些工件消失或數量不足。此問題屬於顯示層面的視覺重疊，並非工件實際未生成。
 
 **⚠️ 視覺化效能與流暢度待提升**
+
 由於目前模擬與繪圖更新的流程尚未做最佳化，在機台與工件數量增加時，3D 視覺化畫面可能出現輕微卡頓或更新延遲。未來可透過降低更新頻率、改善物件渲染策略或優化排程計算流程來提升整體流暢度。
 
 ## 6. Frequently Asked Questions
