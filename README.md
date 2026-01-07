@@ -6,9 +6,9 @@
 專案根目錄主要檔案如下：
 
 - `config.html`：工廠設定介面（設定機台與工件流程，下載 `config.json`）
-- `config.json`：工廠配置檔（由 `config.html` 下載，需放回專案根目錄）
-- `visualization.py`：視覺化模擬主程式（讀取 `config.json` 並顯示動畫）
 - `run_viewer.py`：跨平台啟動器（自動檢查環境、安裝套件、執行 viewer）
+- `config.json`：工廠配置檔（由 `config.html` 下載，需放至專案根目錄）
+- `visualization.py`：視覺化模擬主程式（讀取 `config.json` 並顯示動畫）
 - `requirements.txt`：Python 套件需求清單（compas, compas_viewer）
 - `picture資料夾`：存放專案說明所需圖片
 
