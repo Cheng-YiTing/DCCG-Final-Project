@@ -78,11 +78,11 @@ python3 run_viewer.py
 1. 已用 `config.html` 下載 `config.json`
 2. 已把 `config.json` 移動到專案根目錄（與 `visualization.py`、`run_viewer.py` 同一層）
 3. 再重新執行：
-   #### Windows：
+#### Windows：
 ```bash
 py -3 run_viewer.py
 ```
-   #### macOS：
+#### macOS：
 ```bash
 python3 run_viewer.py
 ```
