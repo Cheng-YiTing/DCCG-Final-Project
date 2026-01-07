@@ -72,6 +72,7 @@ py -3 run_viewer.py
 python3 run_viewer.py
 ```
 
+執行成功如下圖 ↓
 ![viewer Demo](picture/viewerSample.png)
 
 ## 5. 常見問題 FAQ
