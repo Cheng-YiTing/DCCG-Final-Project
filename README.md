@@ -1,8 +1,8 @@
-# 工廠配置視覺化專案（DCCG Final Project）
+# Factory Layout Visualization Project (DCCG Final Project)
 
 本專案旨在將工廠中的機台配置與工件加工流程視覺化，協助使用者快速理解工件在不同機台之間的加工順序、排程行為與資源使用情形。使用者可透過圖形化介面設定機台類型、台數與加工速度，以及工件加工路線並生成設定檔，進一步以 3D 動態模擬方式呈現工件流動與機台效率差異，提升流程規劃、產線溝通與配置決策的效率。
 
-## 1. 專案內容概覽
+## 1. Project Overview
 專案根目錄主要檔案如下：
 
 - `config.html`：工廠設定介面（設定機台與工件流程，下載 `config.json`）
@@ -11,13 +11,13 @@
 - `run_viewer.py`：跨平台啟動器（自動檢查環境、安裝套件、執行 viewer）
 - `requirements.txt`：Python 套件需求清單（compas, compas_viewer）
 
-## 2. 環境需求
+## 2. Requirements
 
 - Windows 10 / 11 或 macOS
 - Python 3（建議 3.8 以上）
 - 需要網路連線（第一次安裝套件會用到）
 
-## 3. 使用流程
+## 3. Usage
 
 ### Step 1：下載專案
 
@@ -33,11 +33,6 @@
    - 工件（產品）與加工流程 route
 3. 點選「下載 config.json」
 
-   #### speed 說明
-
-   - speed 越大表示加工越快
-   - 視覺化會用顏色呈現：藍色較慢、紅色較快
-
 ### Step 3：把 `config.json` 放回專案根目錄
 
 請將下載到電腦「下載資料夾」的 `config.json` 移動到：
@@ -46,7 +41,7 @@
 
 也就是和 `visualization.py`、`run_viewer.py` 同一層。
 
-## 4. 啟動視覺化
+## 4. Run the Visualization
 
 ### 4.1 Windows：在專案資料夾右鍵開啟終端機執行
 
@@ -84,7 +79,7 @@ python3 run_viewer.py
 **⚠️ 視覺化效能與流暢度待提升**
 由於目前模擬與繪圖更新的流程尚未做最佳化，在機台與工件數量增加時，3D 視覺化畫面可能出現輕微卡頓或更新延遲。未來可透過降低更新頻率、改善物件渲染策略或優化排程計算流程來提升整體流暢度。
 
-## 6. 常見問題 FAQ
+## 6. Frequently Asked Questions
 ### Q1：執行時顯示「找不到 config.json」
 請確認：
 1. 已用 `config.html` 下載 `config.json`
