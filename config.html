@@ -132,7 +132,7 @@
       font-size:13px; color: rgb(212, 78, 78); line-height:1.5
     }
 
-    /* ===== speed 說明卡片 ===== */
+    /*speed 說明*/
     .card.note{
       background:
         radial-gradient(900px 420px at 15% -10%, rgba(70,227,167,.18), transparent 60%),
@@ -244,15 +244,15 @@
     </header>
 
     <div class="grid">
-      <!-- Left column: A(機台種類) + C(工件與加工流程) -->
+      <!-- Left column: 機台種類 + 工件與加工流程 -->
       <div>
-        <!-- A. 機台種類設定（保持左上） -->
+        <!-- 機台種類設定（左上）-->
         <div class="card">
-          <h2>1. 機台種類設定</h2>
+          <h2>1. 機台種類設定 (上限10種)</h2>
           <div class="body">
             <div class="row head">
               <div>機台名稱</div>
-              <div>台數</div>
+              <div>台數 (<=10)</div>
               <div>speed</div>
               <div></div>
             </div>
@@ -266,9 +266,9 @@
           </div>
         </div>
 
-        <!-- C. 工件與加工流程（移到左下） -->
+        <!-- 工件與加工流程（左下） -->
         <div class="card" style="margin-top:16px;">
-          <h2>2. 工件與加工流程</h2>
+          <h2>2. 工件與加工流程 (上限10個)</h2>
           <div class="body">
             <div id="productList"></div>
 
@@ -284,9 +284,8 @@
         </div>
       </div>
 
-      <!-- Right column: B(speed 補充說明) -->
+      <!-- Right column: speed 補充說明 -->
       <div>
-        <!-- B. speed 補充說明（移到右邊） -->
         <div class="card note">
           <h2 class="note-title">
             <div>speed 補充說明</div>
@@ -299,7 +298,7 @@
             </p>
 
             <div class="note-img">
-              <img src="speedSample.png" alt="speed 範例示意圖">
+              <img src="picture/speedSample.png" alt="speed 範例示意圖">
             </div>
           </div>
         </div>
@@ -310,9 +309,7 @@
   <div id="toast" class="toast">已複製</div>
 
 <script>
-/* =========================
-   State
-========================= */
+/*State*/
 const state = {
   machine_types: [
     { type: "板材裁切機", count: 2, speed: "1,1" },
@@ -332,13 +329,13 @@ const state = {
   ]
 };
 
-const MAX_TYPES = 12;
+const MAX_TYPES = 10;
 const MAX_PRODUCTS = 10;
-const MAX_STEPS = 12;
+const MAX_STEPS = 10;
+const MAX_MACHINE_COUNT = 10;
+const MAX_PRODUCT_QTY = 5;
 
-/* =========================
-   Helpers
-========================= */
+/*Helpers*/
 function toast(msg){
   const el = document.getElementById("toast");
   el.textContent = msg;
@@ -361,10 +358,7 @@ function getTypeOptions(){
   return list;
 }
 
-/* 解析 speed 欄位：允許
-   - "1" → [1]
-   - "1, 1.5" → [1, 1.5]
-*/
+// speed 欄位：允許 "1" → [1]；"1, 1.5" → [1, 1.5]
 function parseSpeedList(str){
   const s = (str ?? "").toString().trim();
   if(!s) return [1.0];
@@ -377,7 +371,7 @@ function expandMachines(){
   const machines = [];
   for(const mt of state.machine_types){
     const type = (mt.type || "").trim();
-    const count = clamp(parseInt(mt.count || 0), 0, 999);
+    const count = clamp(parseInt(mt.count || 0), 0, MAX_MACHINE_COUNT);
     if(!type || count <= 0) continue;
 
     const speedList = parseSpeedList(mt.speed);
@@ -398,7 +392,7 @@ function buildConfig(){
     machines: expandMachines(),
     products: state.products.map(p => ({
       name: (p.name || "").trim() || "未命名工件",
-      quantity: clamp(parseInt(p.quantity || 1), 1, 999),
+      quantity: clamp(parseInt(p.quantity || 1), 1, MAX_PRODUCT_QTY),
       route: (p.route || []).map(s => ({
         type: s.type,
         duration: parseFloat(s.duration || 1.0)
@@ -407,9 +401,7 @@ function buildConfig(){
   };
 }
 
-/* =========================
-   Render: Machine Types
-========================= */
+/*Render: Machine Types*/
 function renderTypeList(){
   const host = document.getElementById("typeList");
   host.innerHTML = "";
@@ -420,7 +412,7 @@ function renderTypeList(){
 
     row.innerHTML = `
       <div><input type="text" value="${mt.type ?? ""}" placeholder="例如：CNC 雕刻機" data-k="type" data-i="${idx}"></div>
-      <div><input type="number" min="0" step="1" value="${mt.count ?? 1}" data-k="count" data-i="${idx}"></div>
+      <div><input type="number" min="0" max="${MAX_MACHINE_COUNT}" step="1" value="${mt.count ?? 1}" data-k="count" data-i="${idx}"></div>
       <div><input type="text" value="${mt.speed ?? "1"}" placeholder="例如：1 或 1,1.5" data-k="speed" data-i="${idx}"></div>
       <div><button class="btn danger small" data-act="delType" data-i="${idx}">刪除</button></div>
     `;
@@ -434,7 +426,11 @@ function renderTypeList(){
       const k = e.target.dataset.k;
       let v = e.target.value;
 
-      if(k === "count") v = clamp(parseInt(v||0), 0, 999);
+      if(k === "count"){
+        const raw = parseInt(v||0);
+        if(raw > MAX_MACHINE_COUNT) toast(`每種機台最多 ${MAX_MACHINE_COUNT} 台`);
+        v = clamp(raw, 0, MAX_MACHINE_COUNT);
+      }
       state.machine_types[i][k] = v;
 
       syncRouteTypes();
@@ -455,7 +451,7 @@ function renderTypeList(){
 
 function addType(){
   if(state.machine_types.length >= MAX_TYPES){
-    toast("機台種類數已達上限");
+    toast(`機台種類數已達上限（${MAX_TYPES}）`);
     return;
   }
   state.machine_types.push({type:"新機台", count:1, speed:"1"});
@@ -464,9 +460,7 @@ function addType(){
   renderProducts();
 }
 
-/* =========================
-   Render: Products & Routes
-========================= */
+/*Render: Products & Routes*/
 function renderProducts(){
   const host = document.getElementById("productList");
   host.innerHTML = "";
@@ -480,7 +474,7 @@ function renderProducts(){
     topHead.className = "product-top head";
     topHead.innerHTML = `
       <div>工件名稱</div>
-      <div>數量</div>
+      <div>數量 (<=5)</div>
       <div></div>
     `;
     box.appendChild(topHead);
@@ -489,7 +483,7 @@ function renderProducts(){
     top.className = "product-top";
     top.innerHTML = `
       <div><input type="text" value="${p.name ?? ""}" placeholder="工件名稱" data-pk="name" data-pi="${pidx}"></div>
-      <div><input type="number" min="1" step="1" value="${p.quantity ?? 1}" data-pk="quantity" data-pi="${pidx}"></div>
+      <div><input type="number" min="1" max="${MAX_PRODUCT_QTY}" step="1" value="${p.quantity ?? 1}" data-pk="quantity" data-pi="${pidx}"></div>
       <div><button class="btn danger small" data-act="delProduct" data-pi="${pidx}">刪除</button></div>
     `;
     box.appendChild(top);
@@ -497,7 +491,7 @@ function renderProducts(){
     const stepHead = document.createElement("div");
     stepHead.className = "route-step head";
     stepHead.innerHTML = `
-      <div>加工流程</div>
+      <div>加工流程 (上限10步)</div>
       <div>加工時長</div>
       <div></div>
     `;
@@ -531,7 +525,7 @@ function renderProducts(){
     addStepBtn.textContent = "+ 新增流程步驟";
     addStepBtn.addEventListener("click", ()=>{
       if((p.route||[]).length >= MAX_STEPS){
-        toast("流程步驟已達上限");
+        toast(`流程步驟已達上限（${MAX_STEPS}）`);
         return;
       }
       const defaultType = typeOptions[0] || "";
@@ -550,7 +544,11 @@ function renderProducts(){
       const pi = parseInt(e.target.dataset.pi);
       const pk = e.target.dataset.pk;
       let v = e.target.value;
-      if(pk === "quantity") v = clamp(parseInt(v||1), 1, 999);
+      if(pk === "quantity"){
+        const raw = parseInt(v||1);
+        if(raw > MAX_PRODUCT_QTY) toast(`每個工件數量最多 ${MAX_PRODUCT_QTY}`);
+        v = clamp(raw, 1, MAX_PRODUCT_QTY);
+      }
       state.products[pi][pk] = v;
     });
   });
@@ -615,9 +613,7 @@ function addProduct(){
   renderProducts();
 }
 
-/* =========================
-   Actions
-========================= */
+/*Actions*/
 document.getElementById("addTypeBtn").addEventListener("click", addType);
 document.getElementById("addProductBtn").addEventListener("click", addProduct);
 
@@ -652,7 +648,7 @@ document.getElementById("downloadBtn").addEventListener("click", ()=>{
   a.click();
   URL.revokeObjectURL(a.href);
   toast("已下載 config.json");
-  alert("請將下載的 config.json 移動至 Final-Project 資料夾，然後雙擊 run_viewer.bat 即可顯示視覺化模擬！");
+  alert("請將下載的 config.json 移動至 Final-Project 資料夾，開啟終端機執行指令以顯示視覺化模擬！");
 });
 
 /* =========================
