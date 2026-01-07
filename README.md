@@ -1,4 +1,4 @@
-# DCCG 工廠配置視覺化專案（DCCG Final Project）
+# 工廠配置視覺化專案（DCCG Final Project）
 
 本專案旨在將工廠中的機台配置與工件加工流程視覺化，協助使用者快速理解工件在不同機台之間的加工順序、排程行為與資源使用情形。使用者可透過圖形化介面設定機台類型、台數與加工速度，以及工件加工路線並生成設定檔，進一步以 3D 動態模擬方式呈現工件流動與機台效率差異，提升流程規劃、產線溝通與配置決策的效率。
 
@@ -17,7 +17,7 @@
 - Python 3（建議 3.8 以上）
 - 需要網路連線（第一次安裝套件會用到）
 
-## 3. 使用流程（最重要）
+## 3. 使用流程
 
 ### Step 1：下載專案
 
@@ -61,8 +61,8 @@ py -3 run_viewer.py
 ```
 
 ### 4.2 macOS：在專案資料夾開啟終端機後執行
-1. 打開 Finder，進入 DCCG-Final-Project-main 資料夾所在位置
-2. 在 DCCG-Final-Project-main 資料夾上 右鍵
+1. 打開 Finder，進入 `DCCG-Final-Project-main` 資料夾所在位置
+2. 在 `DCCG-Final-Project-main` 資料夾上 右鍵
 3. 若你已啟用 Finder 服務功能，可看到：
    - **服務（Services）→ 新增在資料夾位置的終端機（New Terminal at Folder）**
 4. 終端機開啟後輸入：
