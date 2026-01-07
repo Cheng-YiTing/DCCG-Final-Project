@@ -11,11 +11,13 @@
 - `run_viewer.py`：跨平台啟動器（自動檢查環境、安裝套件、執行 viewer）
 - `requirements.txt`：Python 套件需求清單（compas, compas_viewer）
 
+
 ## 2. Requirements
 
 - Windows 10 / 11 或 macOS
 - Python 3（建議 3.8 以上）
 - 需要網路連線（第一次安裝套件會用到）
+
 
 ## 3. Usage
 
@@ -40,7 +42,7 @@
 | 機台設定 | 每種機台台數 count | 10 台 |
 | 工件設定 | 工件/產品種類數（Products） | 10 個 |
 | 工件設定 | 每個工件流程步驟（Route Steps） | 10 步 |
-| 工件設定 | 每個工件數量 quantity | 5 個 |
+| 工件設定 | 每個工件數量 quantity | 5  個 |
 
 3. 點選「下載 config.json」
 
@@ -51,6 +53,7 @@
 `DCCG-Final-Project-main/`
 
 也就是和 `visualization.py`、`run_viewer.py` 同一層。
+
 
 ## 4. Run the Visualization
 
@@ -81,6 +84,7 @@ python3 run_viewer.py
 ### 執行成功結果如下圖 ↓
 ![viewer Demo](picture/viewerSample.png)
 
+
 ## 5. Known Issues
 目前系統已可穩定完成基本配置與流程視覺化，但在較複雜的輸入情境下仍有部分限制，後續將持續優化：
 
@@ -91,6 +95,7 @@ python3 run_viewer.py
 **⚠️ 視覺化效能與流暢度待提升**
 
 由於目前模擬與繪圖更新的流程尚未做最佳化，在機台與工件數量增加時，3D 視覺化畫面可能出現輕微卡頓或更新延遲。未來可透過降低更新頻率、改善物件渲染策略或優化排程計算流程來提升整體流暢度。
+
 
 ## 6. Frequently Asked Questions
 ### Q1：執行時顯示「找不到 config.json」
