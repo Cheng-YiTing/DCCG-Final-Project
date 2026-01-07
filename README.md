@@ -26,6 +26,7 @@
 ### Step 2：用 `config.html` 設定工廠並下載 `config.json`
 
 1. 打開 `config.html`
+![ConfigHTML Demo](picture/HTMLsample.png)
 2. 設定以下內容：
    - 機台種類、台數、速度 speed
    - 工件（產品）與加工流程 route
