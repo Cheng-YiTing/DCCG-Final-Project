@@ -21,9 +21,7 @@
 
 ### Step 1：下載專案
 
-請從 GitHub 下載並解壓縮，資料夾名稱例如：
-
-`DCCG-Final-Project-main`
+請從 GitHub 下載並解壓縮，資料夾名稱例如：`DCCG-Final-Project-main`
 
 ### Step 2：用 `config.html` 設定工廠並下載 `config.json`
 
@@ -33,7 +31,7 @@
    - 工件（產品）與加工流程 route
 3. 點選「下載 config.json」
 
-#### speed 說明
+   #### speed 說明
 
 - speed 越大表示加工越快
 - 視覺化會用顏色呈現：藍色較慢、紅色較快
