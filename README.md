@@ -26,6 +26,7 @@
 ### Step 2：用 `config.html` 設定工廠並下載 `config.json`
 
 1. 打開 `config.html`
+
 ![ConfigHTML Demo](picture/HTMLsample.png)
 2. 設定以下內容：
    - 機台種類、台數、速度 speed
@@ -70,6 +71,8 @@ py -3 run_viewer.py
 ```bash
 python3 run_viewer.py
 ```
+
+![viewer Demo](picture/viewerSample.png)
 
 ## 5. 常見問題 FAQ
 ### Q1：執行時顯示「找不到 config.json」
