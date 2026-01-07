@@ -62,9 +62,9 @@
 ### 4.1 Windows：在專案資料夾右鍵開啟終端機執行
 
 1. 進入 `DCCG-Final-Project-main` 專案資料夾
-2. 在資料夾內空白處 **右鍵**
+2. 在資料夾內空白處點一下 **右鍵**
 3. 選擇以下其中一種（依你的 Windows 版本顯示不同）：
-   - 在終端機開啟（Open in Terminal）
+   - 在終端機中開啟（Open in Terminal）
    - 在 PowerShell 視窗中開啟（Open PowerShell window here）
    - 在此處開啟命令提示字元（Open Command Prompt here）
 4. 在終端機中輸入：
