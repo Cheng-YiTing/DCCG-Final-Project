@@ -60,6 +60,7 @@
 
 ```bash
 py -3 run_viewer.py
+```
 
 ### 4.2 macOS：在專案資料夾開啟終端機後執行
 1. 打開 Finder，進入 DCCG-Final-Project-main 資料夾所在位置
@@ -69,3 +70,4 @@ py -3 run_viewer.py
 4. 終端機開啟後輸入：
 ```bash
 python3 run_viewer.py
+```
