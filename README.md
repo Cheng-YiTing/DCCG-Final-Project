@@ -46,7 +46,7 @@
 
 也就是和 `visualization.py`、`run_viewer.py` 同一層。
 
-## 4. 啟動方式（命令列，推薦）
+## 4. 啟動視覺化
 
 ### 4.1 Windows：在專案資料夾右鍵開啟終端機執行
 
@@ -68,6 +68,40 @@ py -3 run_viewer.py
 3. 若你已啟用 Finder 服務功能，可看到：
    - **服務（Services）→ 新增在資料夾位置的終端機（New Terminal at Folder）**
 4. 終端機開啟後輸入：
+```bash
+python3 run_viewer.py
+```
+
+## 5. 常見問題 FAQ
+### Q1：執行時顯示「找不到 config.json」
+請確認：
+1. 已用 `config.html` 下載 `config.json`
+2. 已把 `config.json` 移動到專案根目錄（與 `visualization.py`、`run_viewer.py` 同一層）
+3. 再重新執行：
+   #### Windows：
+```bash
+py -3 run_viewer.py
+```
+   #### macOS：
+```bash
+python3 run_viewer.py
+```
+
+### Q2：第一次執行安裝套件失敗（pip權限或網路問題）
+請先確認網路正常，並嘗試使用以下指令：
+#### Windows：
+```bash
+py -3 -m pip install --user -r requirements.txt
+```
+#### macOS：
+```bash
+python3 -m pip install --user -r requirements.txt
+```
+安裝完成後再執行：
+```bash
+py -3 run_viewer.py
+```
+或
 ```bash
 python3 run_viewer.py
 ```
