@@ -24,6 +24,36 @@
       "name": "砂帶研磨機_1",
       "type": "砂帶研磨機",
       "speed": 2
+    },
+    {
+      "name": "A_1",
+      "type": "A",
+      "speed": 0.5
+    },
+    {
+      "name": "A_2",
+      "type": "A",
+      "speed": 0.5
+    },
+    {
+      "name": "A_3",
+      "type": "A",
+      "speed": 0.5
+    },
+    {
+      "name": "A_4",
+      "type": "A",
+      "speed": 0.5
+    },
+    {
+      "name": "A_5",
+      "type": "A",
+      "speed": 0.5
+    },
+    {
+      "name": "B_1",
+      "type": "B",
+      "speed": 1
     }
   ],
   "products": [
@@ -42,6 +72,20 @@
         {
           "type": "砂帶研磨機",
           "duration": 2
+        }
+      ]
+    },
+    {
+      "name": "工件B",
+      "quantity": 1,
+      "route": [
+        {
+          "type": "A",
+          "duration": 1
+        },
+        {
+          "type": "B",
+          "duration": 1
         }
       ]
     }

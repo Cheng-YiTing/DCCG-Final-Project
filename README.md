@@ -1,58 +1,183 @@
-# Factory Layout Visualization System  
-## 2×3 Grid-Based Machine Layout + Loading Heatmap + Flow Path Animation
+DCCG 工廠配置視覺化專案（DCCG Final Project）
 
-本系統是一個 **基於 2×3 空間格子的工廠佈置與流程視覺化平台**。  
-使用者可以自行設定：
+本專案旨在將工廠中的機台配置與工件加工流程視覺化，協助使用者快速理解工件在不同機台之間的加工順序、排程行為與資源使用情形。使用者可透過圖形化介面設定機台類型、台數與加工速度，以及工件加工路線並生成設定檔，進一步以 3D 動態模擬方式呈現工件流動與機台效率差異，提升流程規劃、產線溝通與配置決策的效率。
 
-- 每個區塊放置的機台
-- 各種工件的加工流程（經過哪些機台）
-- 每種工件的需求量（Loads）
+1. 專案內容概覽
 
-系統會在 3D 視覺化環境中展示：
+專案根目錄主要檔案如下：
 
-- 機台在 2×3 工廠格子中的佈局
-- 每台機台依照生產負荷（loading）呈現不同顏色熱度
-- 工件加工流程以折線（polyline）方式連結經過的機台
-- 工件球沿著路徑折線動態移動的動畫
+config.html：工廠設定介面（設定機台與工件流程，下載 config.json）
 
-本專案結合 **幾何建模（geometric modeling）**、  
-**流程視覺化（flow visualization）** 與 **動態模擬（animation）**，  
-可用於課程示範、作業研究與工廠配置教學。
+config.json：工廠配置檔（由 config.html 下載，需放回專案根目錄）
 
----
+visualization.py：視覺化模擬主程式（讀取 config.json 並顯示動畫）
 
-## 1. System Overview / 系統簡介
+run_viewer.py：跨平台啟動器（自動檢查環境、安裝套件、執行 viewer）
 
-### 1.1 功能摘要
+requirements.txt：Python 套件需求清單（compas, compas_viewer）
 
-- 📦 **2×3 工廠佈局（Fixed Grid Layout）**  
-  - 工廠平面被離散成 6 個可配置區塊（slots），座標固定。  
-  - 每個 slot 可放 0–1 台機台，最多 6 台機台。
+2. 環境需求
 
-- 🌡 **Loading 熱度圖（Heatmap on Machines）**  
-  - 根據工件需求量與流程，計算每台機台的 loading。  
-  - loading 越高，機台 Box 顏色越接近紅色；loading 低則偏藍綠。
+Windows 10 / 11 或 macOS
 
-- 🔗 **加工流程折線視覺化（Flow Polyline）**  
-  - 工件流程 route 會被轉換為一條折線，  
-    依序連結經過的機台位置，顯示動線長度與交錯情形。
+Python 3（建議 3.8 以上）
 
-- ⚙️ **工件沿路徑動畫（Path Animation）**  
-  - 每個工件對應一顆球（sphere），沿折線逐段移動。  
-  - 透過線性插值（interpolation）展示工件在工廠中的流動。
+需要網路連線（第一次安裝套件會用到）
 
----
+3. 使用流程（最重要）
+Step 1：下載專案
 
-## 2. File Structure / 專案檔案結構
+請從 GitHub 下載並解壓縮，資料夾名稱例如：
 
-```text
-Final-Project/
-│
-├── config.html         # 使用者網頁介面：輸入機台配置與工件流程，產生 config.json
-├── config.json         # 系統設定檔，由 config.html 產生
-│
-├── grid_viewer.py      # 主視覺化程式：2×3 佈局 + Heatmap + Polyline + 動畫
-├── data_structures.py  # FactoryLayout、Machine、ProductAgent 等資料結構
-├── visualize.py        # 幾何生成工具：Box、Polyline 等
-│
-└── README.md           # 本說明文件
+DCCG-Final-Project-main
+
+Step 2：用 config.html 設定工廠並下載 config.json
+
+打開 config.html
+
+設定以下內容：
+
+機台種類、台數、速度 speed
+
+工件（產品）與加工流程 route
+
+點選「下載 config.json」
+
+speed 說明
+
+speed 越大表示加工越快
+
+視覺化會用顏色呈現：藍色較慢、紅色較快
+
+Step 3：把 config.json 放回專案根目錄
+
+請將下載到電腦「下載資料夾」的 config.json 移動到：
+
+DCCG-Final-Project-main/
+
+也就是和 visualization.py、run_viewer.py 同一層。
+
+4. 啟動方式（命令列，推薦）
+
+本專案採用命令列啟動，確保 Windows/macOS 都能穩定運行，並避免 bat 腳本在部分環境被阻擋。
+建議直接在專案資料夾內「右鍵開啟終端機」後執行指令。
+
+4.1 Windows：在專案資料夾右鍵開啟終端機執行
+
+進入 DCCG-Final-Project-main 專案資料夾
+
+在資料夾內空白處 右鍵
+
+選擇以下其中一種（依你的 Windows 版本顯示不同）：
+
+在終端機開啟（Open in Terminal）
+
+在 PowerShell 視窗中開啟（Open PowerShell window here）
+
+在此處開啟命令提示字元（Open Command Prompt here）
+
+在終端機中輸入：
+
+py -3 run_viewer.py
+
+4.2 macOS：在專案資料夾開啟終端機後執行
+
+macOS 有兩種常見方式（推薦方式 A）。
+
+✅ 方式 A（推薦）：Finder 右鍵使用「服務」開啟終端機
+
+打開 Finder，進入 DCCG-Final-Project-main 資料夾所在位置
+
+在 DCCG-Final-Project-main 資料夾上 右鍵
+
+若你已啟用 Finder 服務功能，可看到：
+
+服務（Services） → 新增在資料夾位置的終端機（New Terminal at Folder）
+
+終端機開啟後輸入：
+
+python3 run_viewer.py
+
+✅ 方式 B：先開 Terminal，再拖曳資料夾進去
+
+打開 Terminal
+
+輸入 cd （注意後面有一個空白）
+
+把 DCCG-Final-Project-main 資料夾直接拖進 Terminal 視窗
+
+按 Enter 後，再輸入：
+
+python3 run_viewer.py
+
+5. 常見問題 FAQ
+Q1：執行時顯示「找不到 config.json」
+
+請確認你已完成以下動作：
+
+用 config.html 下載 config.json
+
+把 config.json 移動到專案根目錄（與 visualization.py、run_viewer.py 同一層）
+
+再重新執行：
+
+Windows：
+
+py -3 run_viewer.py
+
+
+macOS：
+
+python3 run_viewer.py
+
+Q2：第一次執行安裝套件失敗（pip 權限或網路問題）
+
+請先確認網路正常，並嘗試使用以下指令：
+
+Windows
+py -3 -m pip install --user -r requirements.txt
+
+macOS
+python3 -m pip install --user -r requirements.txt
+
+
+安裝完成後再執行：
+
+py -3 run_viewer.py
+
+
+或
+
+python3 run_viewer.py
+
+Q3：終端顯示找不到 py 或 python3 指令
+
+代表 Python 未正確安裝或未加入環境變數（PATH）。
+
+建議：
+
+Windows：重新安裝 Python，並勾選「Add Python to PATH」
+
+macOS：安裝官方 Python3 或使用 Homebrew 安裝 Python3
+
+Q4：視覺化視窗沒有出現或閃退
+
+請重新用終端執行，並將錯誤訊息截圖提供回報。常見原因包含：
+
+Python 版本不相容
+
+套件未成功安裝
+
+config.json 格式錯誤
+
+6. 進階執行（可選）
+
+若你希望手動執行，也可使用：
+
+Windows
+py -3 -m pip install -r requirements.txt
+py -3 visualization.py
+
+macOS
+python3 -m pip install -r requirements.txt
+python3 visualization.py

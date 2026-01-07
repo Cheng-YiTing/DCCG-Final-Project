@@ -129,10 +129,10 @@
     }
     .split .btn{flex:1}
     .mini{
-      font-size:12px; color:var(--muted); line-height:1.5
+      font-size:13px; color: rgb(212, 78, 78); line-height:1.5
     }
 
-    /* ===== 新增：speed 說明卡片（風格接近但背景略不同） ===== */
+    /* ===== speed 說明卡片 ===== */
     .card.note{
       background:
         radial-gradient(900px 420px at 15% -10%, rgba(70,227,167,.18), transparent 60%),
@@ -237,16 +237,16 @@
       <div class="title">
         <h1>工廠配置設定</h1>
         <p>使用流程：<br>
-        ① 左側設定機台資料（機台名稱、台數、speed 可設定）<br>
-        ② 右側新增產品並設定加工流程<br>
-        ③ 下載 config.json → 將 config.json 移動至 Final-Project 資料夾 → 雙擊 <b>run_viewer.bat</b> 顯示視覺化</p>
+        ① 設定機台資料（機台名稱、台數、speed 可設定）<br>
+        ② 設定需加工的工件與加工流程<br>
+        ③ 下載 config.json → 將 config.json 移動至 Final-Project 資料夾 → 開啟終端機執行指令以顯示視覺化</p>
       </div>
     </header>
 
     <div class="grid">
-      <!-- Left column: Machine Types + 新增 speed 說明卡 -->
+      <!-- Left column: A(機台種類) + C(工件與加工流程) -->
       <div>
-        <!-- Left: Machine Types -->
+        <!-- A. 機台種類設定（保持左上） -->
         <div class="card">
           <h2>1. 機台種類設定</h2>
           <div class="body">
@@ -263,13 +263,31 @@
               <button class="btn primary" id="addTypeBtn">+ 新增機台種類</button>
               <button class="btn" id="resetBtn">重設範例</button>
             </div>
-
-            <!-- 原本在左卡片底部的 speed 文字已移到下方新 card -->
           </div>
         </div>
 
-        <!--speed 補充說明卡片（紅框位置） -->
-        <div class="card note" style="margin-top:16px;">
+        <!-- C. 工件與加工流程（移到左下） -->
+        <div class="card" style="margin-top:16px;">
+          <h2>2. 工件與加工流程</h2>
+          <div class="body">
+            <div id="productList"></div>
+
+            <div class="split">
+              <button class="btn primary" id="addProductBtn">+ 新增工件/產品</button>
+              <button class="btn" id="downloadBtn">下載 config.json</button>
+            </div>
+
+            <p class="mini" style="margin-top:10px;">
+              config.json 是你的工廠配置檔，下載後將 config.json 放到 Final-Project 資料夾<br>雙擊 run_viewer.bat 即可視覺化模擬
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: B(speed 補充說明) -->
+      <div>
+        <!-- B. speed 補充說明（移到右邊） -->
+        <div class="card note">
           <h2 class="note-title">
             <div>speed 補充說明</div>
           </h2>
@@ -281,26 +299,9 @@
             </p>
 
             <div class="note-img">
-              <img src="speed範例.png" alt="speed 範例示意圖">
+              <img src="speedSample.png" alt="speed 範例示意圖">
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Right: Products -->
-      <div class="card">
-        <h2>2. 工件與加工流程</h2>
-        <div class="body">
-          <div id="productList"></div>
-
-          <div class="split">
-            <button class="btn primary" id="addProductBtn">+ 新增工件/產品</button>
-            <button class="btn" id="downloadBtn">下載 config.json</button>
-          </div>
-
-          <p class="mini" style="margin-top:10px;">
-            config.json 是你的工廠配置檔，下載後將 config.json 放到 Final-Project 資料夾<br>雙擊 run_viewer.bat 即可視覺化模擬
-          </p>
         </div>
       </div>
     </div>
@@ -496,8 +497,8 @@ function renderProducts(){
     const stepHead = document.createElement("div");
     stepHead.className = "route-step head";
     stepHead.innerHTML = `
-      <div>機台名稱</div>
-      <div>duration</div>
+      <div>加工流程</div>
+      <div>加工時長</div>
       <div></div>
     `;
     box.appendChild(stepHead);
@@ -651,6 +652,7 @@ document.getElementById("downloadBtn").addEventListener("click", ()=>{
   a.click();
   URL.revokeObjectURL(a.href);
   toast("已下載 config.json");
+  alert("請將下載的 config.json 移動至 Final-Project 資料夾，然後雙擊 run_viewer.bat 即可顯示視覺化模擬！");
 });
 
 /* =========================
