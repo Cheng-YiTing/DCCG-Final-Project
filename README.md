@@ -66,7 +66,7 @@ py -3 run_viewer.py
 1. 打開 Finder，進入 DCCG-Final-Project-main 資料夾所在位置
 2. 在 DCCG-Final-Project-main 資料夾上 右鍵
 3. 若你已啟用 Finder 服務功能，可看到：
-   -**服務（Services） → 新增在資料夾位置的終端機（New Terminal at Folder）**
+   - **服務（Services）→ 新增在資料夾位置的終端機（New Terminal at Folder）**
 4. 終端機開啟後輸入：
 ```bash
 python3 run_viewer.py
