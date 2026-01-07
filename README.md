@@ -10,6 +10,7 @@
 - `visualization.py`：視覺化模擬主程式（讀取 `config.json` 並顯示動畫）
 - `run_viewer.py`：跨平台啟動器（自動檢查環境、安裝套件、執行 viewer）
 - `requirements.txt`：Python 套件需求清單（compas, compas_viewer）
+- `picture資料夾`：存放專案說明所需圖片
 
 
 ## 2. Requirements
